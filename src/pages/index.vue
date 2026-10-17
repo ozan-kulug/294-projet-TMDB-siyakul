@@ -128,7 +128,13 @@
               :to="`/movies/${movie.id}`"
             >
               <v-icon icon="mdi-movie-outline" size="32" />
-              <v-img :alt="movie.title" class="film-card__img" cover :src="posterUrl(movie)" />
+              <v-img
+                :alt="movie.title"
+                class="film-card__img"
+                :class="{ 'is-backdrop': !movie.posterPath }"
+                cover
+                :src="posterUrl(movie)"
+              />
               <span class="film-card__title">
                 {{ movie.title }}
                 <small class="d-block">{{ releaseYear(movie) }} • ⭐ {{ rating(movie) }}</small>
@@ -181,6 +187,7 @@
                 <v-img
                   :alt="movie.title"
                   class="top-item__poster"
+                  :class="{ 'is-backdrop': !movie.posterPath }"
                   cover
                   :src="posterUrl(movie)"
                 />
@@ -403,6 +410,12 @@
   .film-card__title small {
     opacity: 0.8;
     font-weight: 400;
+  }
+
+/* Image de fond utilisée à la place d'une affiche manquante : elle est carrée avec des
+     bandes noires en haut et en bas, on zoome pour ne garder que l'image (16:9) */
+  .is-backdrop :deep(.v-img__img) {
+    transform: scale(1.78);
   }
 
   .film-card--wide {
