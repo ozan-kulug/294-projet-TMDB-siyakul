@@ -207,7 +207,7 @@
 
 <script setup>
   import { computed, onMounted, ref, watch } from 'vue'
-  import { getMovies, imageUrl, posterUrl, rating, releaseYear } from '@/utils/movies'
+  import { getAllMovies, getMovies, imageUrl, posterUrl, rating, releaseYear } from '@/utils/movies'
 
   const FEATURED_COUNT = 5
   const PAGE_SIZE = 24
@@ -274,14 +274,10 @@
     }
   }
 
-  // L'API limite à 100 films par page : on charge la 1re page, puis les suivantes
   async function fetchAllMovies () {
     allLoading.value = true
     try {
-      const first = await getMovies('limit=100&page=1')
-      const otherPages = Array.from({ length: first.pagination.pages - 1 }, (_, i) => i + 2)
-      const others = await Promise.all(otherPages.map(p => getMovies(`limit=100&page=${p}`)))
-      allMovies.value = [first, ...others].flatMap(json => json.data)
+      allMovies.value = await getAllMovies()
     } catch (error_) {
       error.value = error_.message
     } finally {

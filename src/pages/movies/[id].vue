@@ -40,21 +40,61 @@
             {{ movie.originalTitle }}
           </p>
 
-          <p class="movie__meta">
-            <span>{{ releaseDate(movie) }}</span>
-            <span v-if="movie.originalLanguage">{{ movie.originalLanguage.toUpperCase() }}</span>
-          </p>
+          <p class="movie__meta">{{ releaseDate(movie) }}</p>
 
-          <div class="movie__score">
-            <strong>{{ rating(movie) }}</strong>
-            <span>/ 10 · {{ votes }} votes</span>
+          <!-- Note sur 5 étoiles, arrondie à la demi-étoile (l'API donne une note sur 10) -->
+          <div class="movie__rating">
+            <v-rating
+              active-color="amber"
+              color="amber"
+              density="compact"
+              half-increments
+              :model-value="Math.round(movie.voteAverage ?? 0) / 2"
+              readonly
+              size="small"
+            />
+            <span class="movie__rating-text">
+              <strong>{{ rating(movie) }}</strong> / 10 · {{ votes }} votes
+            </span>
           </div>
 
-          <div v-if="movieGenres.length > 0" class="movie__genres">
-            <v-chip v-for="genre in movieGenres" :key="genre" size="small" variant="tonal">
-              {{ genre }}
-            </v-chip>
-          </div>
+          <!-- Fiche du film -->
+          <dl class="facts">
+            <div class="facts__item facts__item--wide">
+              <dt>Genres</dt>
+              <dd v-if="movieGenres.length > 0" class="facts__genres">
+                <v-chip v-for="genre in movieGenres" :key="genre" size="small" variant="tonal">
+                  {{ genre }}
+                </v-chip>
+              </dd>
+              <dd v-else>–</dd>
+            </div>
+
+            <div class="facts__item">
+              <dt>Langue originale</dt>
+              <dd>{{ languageName(movie.originalLanguage) }}</dd>
+            </div>
+
+            <div class="facts__item">
+              <dt>Classement</dt>
+              <dd>
+                <template v-if="ranks">
+                  {{ ordinal(ranks.byRating) }} <small>sur {{ ranks.total }}</small>
+                </template>
+                <template v-else>…</template>
+              </dd>
+            </div>
+
+            <div class="facts__item">
+              <dt>Popularité</dt>
+              <dd>
+                <template v-if="ranks">
+                  {{ ordinal(ranks.byPopularity) }} <small>sur {{ ranks.total }}</small>
+                </template>
+                <template v-else>…</template>
+              </dd>
+            </div>
+          </dl>
         </header>
 
         <!-- Affiche -->
@@ -82,7 +122,16 @@
 <script setup>
   import { computed, ref, watch } from 'vue'
   import { useRoute } from 'vue-router'
-  import { apiGet, imageUrl, posterUrl, rating, releaseDate } from '@/utils/movies'
+  import {
+    apiGet,
+    getAllMovies,
+    imageUrl,
+    languageName,
+    ordinal,
+    posterUrl,
+    rating,
+    releaseDate,
+  } from '@/utils/movies'
 
   const route = useRoute()
 
@@ -91,8 +140,22 @@
 
   const movie = ref(null)
   const genres = ref([])
+  const allMovies = ref([])
   const loading = ref(true)
   const error = ref(null)
+
+  // Position du film parmi tous les films de l'API, par note et par popularité
+  const ranks = computed(() => {
+    if (!movie.value || allMovies.value.length === 0) return null
+    const rankBy = field => allMovies.value
+      .toSorted((a, b) => (b[field] ?? 0) - (a[field] ?? 0))
+      .findIndex(m => m.id === movie.value.id) + 1
+    return {
+      byRating: rankBy('voteAverage'),
+      byPopularity: rankBy('popularity'),
+      total: allMovies.value.length,
+    }
+  })
 
   // Noms des genres du film : genreIds correspond au sourceId des genres
   const movieGenres = computed(() =>
@@ -119,6 +182,15 @@
     }
   }
 
+  async function fetchAllMovies () {
+    try {
+      allMovies.value = await getAllMovies()
+    } catch {
+      // Le classement est un bonus : la page reste utilisable sans lui
+      allMovies.value = []
+    }
+  }
+
   async function fetchMovie (id) {
     loading.value = true
     error.value = null
@@ -138,6 +210,7 @@
   }, { immediate: true })
 
   fetchGenres()
+  fetchAllMovies()
 </script>
 
 <style scoped>
@@ -231,29 +304,60 @@
     color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
   }
 
-  .movie__score {
+  /* Note en étoiles */
+  .movie__rating {
     display: flex;
-    align-items: baseline;
-    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 12px;
     margin-top: 20px;
   }
 
-  .movie__score strong {
-    font-size: 2rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .movie__score span {
+  .movie__rating-text {
     font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
     color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
   }
 
-  .movie__genres {
+  .movie__rating-text strong {
+    font-size: 1.1rem;
+    color: rgb(var(--v-theme-on-surface));
+  }
+
+  /* Fiche du film */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    justify-content: start;
+    gap: 20px 40px;
+    margin-top: 28px;
+  }
+
+  .facts__item--wide {
+    grid-column: 1 / -1;
+  }
+
+  .facts dt {
+    margin-bottom: 6px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+  }
+
+  .facts dd {
+    font-weight: 500;
+  }
+
+  .facts dd small {
+    font-weight: 400;
+    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+  }
+
+  .facts__genres {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 20px;
   }
 
   .movie__poster {
@@ -318,6 +422,11 @@
 
     .movie__title {
       font-size: 1.8rem;
+    }
+
+    .facts {
+      grid-template-columns: repeat(2, auto);
+      gap: 16px 24px;
     }
   }
 </style>
