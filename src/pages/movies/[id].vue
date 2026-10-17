@@ -4,28 +4,45 @@
     <SearchDialog v-model="searchOpen" />
 
     <div class="content">
-      <section class="movie">
+      <!-- Chargement -->
+      <div v-if="loading" class="state">
+        <v-progress-circular color="primary" indeterminate />
+      </div>
+
+      <!-- Erreur (ex. film introuvable) -->
+      <div v-else-if="error" class="state">
+        <v-alert
+          :text="error"
+          title="Impossible d'afficher ce film"
+          type="error"
+          variant="tonal"
+        />
+        <v-btn class="mt-4" prepend-icon="mdi-arrow-left" to="/" variant="text">
+          Retour à l'accueil
+        </v-btn>
+      </div>
+
+      <section v-else-if="movie" class="movie">
         <!-- Informations principales -->
         <header class="movie__header">
-          <h1 class="movie__title">Titre du film</h1>
+          <h1 class="movie__title">{{ movie.title }}</h1>
           <p class="movie__meta">
-            <span>Date de sortie</span>
-            <span>Durée</span>
+            <span>{{ releaseDate(movie) }}</span>
+            <span>{{ movie.originalLanguage?.toUpperCase() }}</span>
+            <span>Note {{ rating(movie) }}</span>
           </p>
         </header>
 
         <!-- Affiche -->
         <div class="movie__poster">
           <v-icon icon="mdi-movie-outline" size="48" />
+          <v-img :alt="movie.title" class="movie__poster-img" cover :src="posterUrl(movie)" />
         </div>
 
         <!-- Résumé -->
         <section class="movie__overview">
           <h2 class="movie__subtitle">Résumé</h2>
-          <p>
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-            incididunt ut labore et dolore magna aliqua.
-          </p>
+          <p>{{ movie.overview || 'Aucun résumé disponible.' }}</p>
         </section>
       </section>
     </div>
@@ -33,10 +50,36 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { ref, watch } from 'vue'
+  import { useRoute } from 'vue-router'
+  import { apiGet, posterUrl, rating, releaseDate } from '@/utils/movies'
+
+  const route = useRoute()
 
   // Fenêtre de recherche
   const searchOpen = ref(false)
+
+  const movie = ref(null)
+  const loading = ref(true)
+  const error = ref(null)
+
+  async function fetchMovie (id) {
+    loading.value = true
+    error.value = null
+    movie.value = null
+    try {
+      movie.value = await apiGet(`/movies/${id}`)
+    } catch (error_) {
+      error.value = error_.message
+    } finally {
+      loading.value = false
+    }
+  }
+
+  // Recharge le film quand l'id change dans l'URL (ex. passage d'un film à un autre)
+  watch(() => route.params.id, id => {
+    if (id) fetchMovie(id)
+  }, { immediate: true })
 </script>
 
 <style scoped>
@@ -49,6 +92,11 @@
     flex: 1;
     min-width: 0;
     padding: 32px 48px;
+  }
+
+  .state {
+    max-width: 560px;
+    padding-top: 64px;
   }
 
   /* Mise en page : infos à gauche, affiche à droite, résumé en dessous */
@@ -84,6 +132,7 @@
   }
 
   .movie__poster {
+    position: relative;
     grid-area: poster;
     display: grid;
     place-items: center;
@@ -93,6 +142,11 @@
     border-radius: 12px;
     background: rgba(var(--v-theme-on-surface), 0.06);
     color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+  }
+
+  .movie__poster-img {
+    position: absolute;
+    inset: 0;
   }
 
   .movie__overview {

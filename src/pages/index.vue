@@ -78,16 +78,17 @@
             </div>
           </template>
 
-          <div
+          <router-link
             v-for="(movie, i) in visibleFeatured"
             v-else
             :key="movie.id"
             class="film-card film-card--wide"
             :class="{ 'film-card--active': i === 1 }"
+            :to="`/movies/${movie.id}`"
           >
             <v-img :alt="movie.title" class="film-card__img" cover :src="imageUrl(movie.backdropPath)" />
             <span class="film-card__title">{{ movie.title }}</span>
-          </div>
+          </router-link>
         </div>
 
         <v-btn
@@ -119,14 +120,20 @@
               </div>
             </template>
 
-            <div v-for="movie in movies" v-else :key="movie.id" class="film-card film-card--poster">
+            <router-link
+              v-for="movie in movies"
+              v-else
+              :key="movie.id"
+              class="film-card film-card--poster"
+              :to="`/movies/${movie.id}`"
+            >
               <v-icon icon="mdi-movie-outline" size="32" />
               <v-img :alt="movie.title" class="film-card__img" cover :src="posterUrl(movie)" />
               <span class="film-card__title">
                 {{ movie.title }}
                 <small class="d-block">{{ releaseYear(movie) }} • ⭐ {{ rating(movie) }}</small>
               </span>
-            </div>
+            </router-link>
           </div>
 
           <p v-if="!loading && !error && movies.length === 0" class="text-medium-emphasis">
@@ -168,19 +175,21 @@
 
           <v-progress-linear v-if="allLoading" indeterminate />
           <ol v-else class="top-list__items">
-            <li v-for="(movie, i) in topMovies" :key="movie.id" class="top-item">
-              <span class="top-item__rank">{{ String(i + 1).padStart(2, '0') }}</span>
-              <v-img
-                :alt="movie.title"
-                class="top-item__poster"
-                cover
-                :src="posterUrl(movie)"
-              />
-              <div class="top-item__info">
-                <span class="top-item__title">{{ movie.title }}</span>
-                <span class="top-item__meta">{{ releaseYear(movie) }}</span>
-              </div>
-              <span class="top-item__score">{{ rating(movie) }}</span>
+            <li v-for="(movie, i) in topMovies" :key="movie.id">
+              <router-link class="top-item" :to="`/movies/${movie.id}`">
+                <span class="top-item__rank">{{ String(i + 1).padStart(2, '0') }}</span>
+                <v-img
+                  :alt="movie.title"
+                  class="top-item__poster"
+                  cover
+                  :src="posterUrl(movie)"
+                />
+                <div class="top-item__info">
+                  <span class="top-item__title">{{ movie.title }}</span>
+                  <span class="top-item__meta">{{ releaseYear(movie) }}</span>
+                </div>
+                <span class="top-item__score">{{ rating(movie) }}</span>
+              </router-link>
             </li>
           </ol>
         </aside>
@@ -365,6 +374,13 @@
     border-radius: 8px;
     background: var(--placeholder);
     color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
+    text-decoration: none;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+  }
+
+  .film-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(var(--v-theme-on-surface), 0.3);
   }
 
   .film-card__img {
@@ -519,7 +535,8 @@
     gap: 12px;
     padding: 8px 12px;
     border-radius: 10px;
-    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
     transition: background-color 0.2s ease;
   }
 
