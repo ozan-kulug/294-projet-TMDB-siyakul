@@ -1,23 +1,6 @@
 <template>
   <div class="page">
-    <!-- Barre latérale -->
-    <aside class="sidebar">
-      <div class="logo logo--small">Logo</div>
-
-      <v-btn
-        color="primary"
-        icon="mdi-magnify"
-        title="Rechercher"
-        variant="text"
-        @click="searchOpen = true"
-      />
-      <v-btn color="primary" icon="mdi-menu" title="Menu" variant="text" />
-      <v-btn icon="mdi-dice-5-outline" title="Film au hasard" variant="text" />
-
-      <v-spacer />
-
-      <v-btn icon="mdi-cog-outline" title="Paramètres" variant="text" />
-    </aside>
+    <AppSidebar @search="searchOpen = true" />
 
     <div class="content">
       <!-- En-tête -->
@@ -60,25 +43,7 @@
       </section>
 
       <!-- Fenêtre de recherche -->
-      <v-dialog v-model="searchOpen" max-width="720">
-        <v-card class="search-dialog" rounded="xl">
-          <v-text-field
-            autofocus
-            class="search-dialog__field"
-            flat
-            hide-details
-            placeholder="Rechercher un film…"
-            prepend-inner-icon="mdi-magnify"
-            variant="solo-filled"
-          />
-
-          <div class="search-dialog__recent">
-            <div v-for="n in 4" :key="n" class="search-dialog__item">
-              Dernière recherche {{ n }}
-            </div>
-          </div>
-        </v-card>
-      </v-dialog>
+      <SearchDialog v-model="searchOpen" />
 
       <!-- Erreur de chargement -->
       <v-alert
@@ -226,8 +191,8 @@
 
 <script setup>
   import { computed, onMounted, ref, watch } from 'vue'
+  import { getMovies, imageUrl, posterUrl, rating, releaseYear } from '@/utils/movies'
 
-  const API_URL = 'https://apis.divtec.me'
   const FEATURED_COUNT = 5
   const PAGE_SIZE = 24
 
@@ -276,33 +241,6 @@
     featuredIndex.value = (featuredIndex.value + 1) % featuredMovies.value.length
   }
 
-  function imageUrl (path) {
-    return path ? `${API_URL}${path}` : undefined
-  }
-
-  // Certains films de l'API n'ont pas d'affiche (posterPath absent) :
-  // on utilise alors l'image de fond (backdropPath) à la place
-  function posterUrl (movie) {
-    return imageUrl(movie.posterPath ?? movie.backdropPath)
-  }
-
-  function releaseYear (movie) {
-    return movie.releaseDate?.slice(0, 4) ?? '–'
-  }
-
-  function rating (movie) {
-    return movie.voteAverage?.toFixed(1) ?? '–'
-  }
-
-  async function getMovies (query) {
-    const response = await fetch(`${API_URL}/api/tmdb-api/movies?${query}`)
-    const json = await response.json()
-    if (!response.ok) {
-      throw new Error(json?.error?.message ?? `Erreur ${response.status}`)
-    }
-    return json
-  }
-
   async function fetchMovies () {
     const requestedPage = page.value
     loading.value = true
@@ -348,31 +286,12 @@
 </script>
 
 <style scoped>
-  /* La fenêtre de recherche est rendue hors de .page (dans <body>) : elle a besoin des mêmes variables */
-  .page,
-  .search-dialog {
+  .page {
     --border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
     --placeholder: rgba(var(--v-theme-on-surface), 0.06);
-  }
 
-  .page {
     display: flex;
     min-height: 100%;
-  }
-
-  /* Barre latérale */
-  .sidebar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 64px;
-    height: calc(100dvh - var(--v-layout-bottom, 0px));
-    padding: 12px 0;
-    border-right: var(--border);
-    flex-shrink: 0;
   }
 
   .logo {
@@ -383,11 +302,6 @@
     border: var(--border);
     border-radius: 50%;
     font-size: 0.8rem;
-  }
-
-  .logo--small {
-    width: 48px;
-    margin-bottom: 12px;
   }
 
   /* Contenu principal */
@@ -430,40 +344,6 @@
 
   .search__field :deep(input) {
     cursor: pointer;
-  }
-
-  /* Fenêtre de recherche */
-  .search-dialog {
-    padding: 20px;
-  }
-
-  .search-dialog__field {
-    margin-bottom: 20px;
-  }
-
-  .search-dialog__recent {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-
-  .search-dialog__item {
-    display: grid;
-    place-items: center;
-    aspect-ratio: 1;
-    padding: 12px;
-    border: var(--border);
-    border-radius: 12px;
-    background: var(--placeholder);
-    font-size: 0.85rem;
-    text-align: center;
-    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-  }
-
-  @media (max-width: 600px) {
-    .search-dialog__recent {
-      grid-template-columns: repeat(2, 1fr);
-    }
   }
 
   .search__genres {
