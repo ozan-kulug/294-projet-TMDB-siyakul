@@ -111,8 +111,7 @@
             variant="outlined"
           />
 
-          <!-- tabindex="-1" permet de donner le focus à la grille quand on change de page -->
-          <div ref="grille" class="catalogue__grid" tabindex="-1">
+          <div class="catalogue__grid">
             <template v-if="isLoading">
               <v-skeleton-loader v-for="n in 6" :key="n" class="poster-skeleton" type="image" />
             </template>
@@ -143,7 +142,7 @@
 
 <script setup>
   import { storeToRefs } from 'pinia'
-  import { computed, ref, watch } from 'vue'
+  import { computed, ref } from 'vue'
   import { RouterLink } from 'vue-router'
   import { useMovieStore } from '@/stores/movieStore'
 
@@ -209,7 +208,6 @@
   // ----- Catalogue et pagination -----
 
   const page = ref(1)
-  const grille = ref(null)
 
   const nombrePages = computed(() => Math.ceil(movies.value.length / FILMS_PAR_PAGE))
 
@@ -224,13 +222,6 @@
       }
     }
     return films
-  })
-
-  // Changement de page : on donne le focus à la grille pour que le navigateur remonte jusqu'à elle
-  watch(page, () => {
-    if (grille.value) {
-      grille.value.focus()
-    }
   })
 </script>
 
@@ -380,11 +371,6 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
-    scroll-margin-top: 16px;
-  }
-
-  .catalogue__grid:focus {
-    outline: none;
   }
 
   .poster-skeleton {

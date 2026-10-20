@@ -35,7 +35,7 @@ export const useMovieStore = defineStore('movie', {
     moviesByPopularity: state => state.movies.toSorted((a, b) => b.popularity - a.popularity),
 
     // Films triés de la meilleure note à la moins bonne
-    moviesByRating: state => state.movies.toSorted((a, b) => (b.voteAverage || 0) - (a.voteAverage || 0)),
+    moviesByRating: state => state.movies.toSorted((a, b) => b.voteAverage - a.voteAverage),
 
     // Noms des genres d'un film (genreIds contient le sourceId des genres)
     getGenreNames: state => {
