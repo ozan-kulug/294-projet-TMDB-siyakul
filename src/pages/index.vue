@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <AppSidebar @search="searchOpen = true" />
+    <AppSidebar @rechercher="rechercheOuverte = true" />
 
     <div class="content">
       <!-- En-tête -->
@@ -30,8 +30,8 @@
             prepend-inner-icon="mdi-magnify"
             readonly
             variant="outlined"
-            @click="searchOpen = true"
-            @keydown.enter="searchOpen = true"
+            @click="rechercheOuverte = true"
+            @keydown.enter="rechercheOuverte = true"
           />
           <v-btn prepend-icon="mdi-dice-5-outline" variant="outlined">Au hasard</v-btn>
           <v-btn color="primary" icon="mdi-filter" title="Filtres" variant="text" />
@@ -43,7 +43,7 @@
       </section>
 
       <!-- Fenêtre de recherche -->
-      <SearchDialog v-model="searchOpen" />
+      <SearchDialog :ouvert="rechercheOuverte" @fermer="rechercheOuverte = false" />
 
       <!-- Erreur de chargement -->
       <v-alert
@@ -55,54 +55,52 @@
         variant="tonal"
       />
 
-      <!-- Carrousel des films à la une -->
+      <!-- Carrousel des films les plus populaires -->
       <section class="carousel">
         <v-btn
           class="carousel__arrow"
-          :disabled="allLoading"
+          :disabled="isLoading"
           icon="mdi-chevron-left"
           title="Précédent"
           variant="outlined"
-          @click="previousFeatured"
+          @click="filmPrecedent"
         />
 
         <div class="carousel__track">
-          <template v-if="allLoading">
-            <div
-              v-for="n in 3"
-              :key="n"
-              class="film-card film-card--wide"
-              :class="{ 'film-card--active': n === 2 }"
-            >
-              <v-icon icon="mdi-movie-open-outline" size="40" />
-            </div>
+          <template v-if="isLoading">
+            <v-skeleton-loader v-for="n in 3" :key="n" class="featured-skeleton" type="image" />
           </template>
 
-          <router-link
-            v-for="(movie, i) in visibleFeatured"
+          <RouterLink
+            v-for="movie in filmsVisibles"
             v-else
             :key="movie.id"
-            class="film-card film-card--wide"
-            :class="{ 'film-card--active': i === 1 }"
+            class="featured-card"
+            :class="{ 'featured-card--active': movie.id === filmCourant.id }"
             :to="`/movies/${movie.id}`"
           >
-            <v-img :alt="movie.title" class="film-card__img" cover :src="imageUrl(movie.backdropPath)" />
-            <span class="film-card__title">{{ movie.title }}</span>
-          </router-link>
+            <v-img
+              :alt="movie.title"
+              class="featured-card__img"
+              cover
+              :src="movieStore.getImageUrl(movie.backdropPath)"
+            />
+            <span class="featured-card__title">{{ movie.title }}</span>
+          </RouterLink>
         </div>
 
         <v-btn
           class="carousel__arrow"
-          :disabled="allLoading"
+          :disabled="isLoading"
           icon="mdi-chevron-right"
           title="Suivant"
           variant="outlined"
-          @click="nextFeatured"
+          @click="filmSuivant"
         />
       </section>
 
       <!-- Catalogue + Top -->
-      <section ref="catalogueRef" class="catalogue">
+      <section class="catalogue">
         <div class="catalogue__main">
           <v-select
             class="catalogue__order"
@@ -113,187 +111,126 @@
             variant="outlined"
           />
 
-          <div class="catalogue__grid">
-            <template v-if="loading">
-              <div v-for="n in 6" :key="n" class="film-card film-card--poster">
-                <v-icon icon="mdi-movie-outline" size="32" />
-              </div>
+          <!-- tabindex="-1" permet de donner le focus à la grille quand on change de page -->
+          <div ref="grille" class="catalogue__grid" tabindex="-1">
+            <template v-if="isLoading">
+              <v-skeleton-loader v-for="n in 6" :key="n" class="poster-skeleton" type="image" />
             </template>
 
-            <router-link
-              v-for="movie in movies"
-              v-else
-              :key="movie.id"
-              class="film-card film-card--poster"
-              :to="`/movies/${movie.id}`"
-            >
-              <v-icon icon="mdi-movie-outline" size="32" />
-              <v-img
-                :alt="movie.title"
-                class="film-card__img"
-                :class="{ 'is-backdrop': !movie.posterPath }"
-                cover
-                :src="posterUrl(movie)"
-              />
-              <span class="film-card__title">
-                {{ movie.title }}
-                <small class="d-block">{{ releaseYear(movie) }} • ⭐ {{ rating(movie) }}</small>
-              </span>
-            </router-link>
+            <MovieCard v-for="movie in filmsDeLaPage" v-else :key="movie.id" :movie="movie" />
           </div>
 
-          <p v-if="!loading && !error && movies.length === 0" class="text-medium-emphasis">
+          <p v-if="!isLoading && !error && movies.length === 0" class="text-medium-emphasis">
             Aucun film trouvé.
           </p>
 
           <v-pagination
-            v-if="pageCount > 1"
+            v-if="nombrePages > 1"
             v-model="page"
             class="catalogue__pagination"
             density="comfortable"
-            :length="pageCount"
+            :length="nombrePages"
             rounded="circle"
             :total-visible="5"
           />
         </div>
 
-        <aside class="top-list">
-          <header class="top-list__header">
-            <div>
-              <h2 class="top-list__heading">Top {{ topSize }}</h2>
-              <span class="top-list__caption">Les mieux notés</span>
-            </div>
-
-            <div aria-label="Taille du classement" class="top-switch" role="group">
-              <button
-                v-for="size in TOP_SIZES"
-                :key="size"
-                :aria-pressed="topSize === size"
-                class="top-switch__btn"
-                :class="{ 'top-switch__btn--active': topSize === size }"
-                type="button"
-                @click="topSize = size"
-              >
-                {{ size }}
-              </button>
-            </div>
-          </header>
-
-          <v-progress-linear v-if="allLoading" indeterminate />
-          <ol v-else class="top-list__items">
-            <li v-for="(movie, i) in topMovies" :key="movie.id">
-              <router-link class="top-item" :to="`/movies/${movie.id}`">
-                <span class="top-item__rank">{{ String(i + 1).padStart(2, '0') }}</span>
-                <v-img
-                  :alt="movie.title"
-                  class="top-item__poster"
-                  :class="{ 'is-backdrop': !movie.posterPath }"
-                  cover
-                  :src="posterUrl(movie)"
-                />
-                <div class="top-item__info">
-                  <span class="top-item__title">{{ movie.title }}</span>
-                  <span class="top-item__meta">{{ releaseYear(movie) }}</span>
-                </div>
-                <span class="top-item__score">{{ rating(movie) }}</span>
-              </router-link>
-            </li>
-          </ol>
-        </aside>
+        <TopMovies />
       </section>
     </div>
   </div>
 </template>
 
 <script setup>
-  import { computed, onMounted, ref, watch } from 'vue'
-  import { getAllMovies, getMovies, imageUrl, posterUrl, rating, releaseYear } from '@/utils/movies'
+  import { storeToRefs } from 'pinia'
+  import { computed, ref, watch } from 'vue'
+  import { RouterLink } from 'vue-router'
+  import { useMovieStore } from '@/stores/movieStore'
 
-  const FEATURED_COUNT = 5
-  const PAGE_SIZE = 24
+  // Nombre de films dans le carrousel
+  const NOMBRE_FILMS_UNE = 5
+  // Nombre de films par page du catalogue
+  const FILMS_PAR_PAGE = 24
+
+  const movieStore = useMovieStore()
+  const { movies, moviesByPopularity, isLoading, error } = storeToRefs(movieStore)
 
   // Fenêtre de recherche
-  const searchOpen = ref(false)
+  const rechercheOuverte = ref(false)
 
-  // Catalogue (une page de films)
-  const movies = ref([])
-  const loading = ref(true)
-  const error = ref(null)
+  // ----- Carrousel -----
+
+  // Position du film affiché au centre du carrousel
+  const indexFilmCourant = ref(0)
+
+  // Les films les plus populaires
+  const filmsALaUne = computed(() => {
+    const films = []
+    for (const [index, film] of moviesByPopularity.value.entries()) {
+      if (index < NOMBRE_FILMS_UNE) {
+        films.push(film)
+      }
+    }
+    return films
+  })
+
+  // Film affiché au centre
+  const filmCourant = computed(() => filmsALaUne.value[indexFilmCourant.value])
+
+  // Les 3 films visibles : précédent, courant (au centre) et suivant
+  const filmsVisibles = computed(() => {
+    const films = filmsALaUne.value
+    const total = films.length
+    if (total < 3) {
+      return films
+    }
+    return [
+      films[(indexFilmCourant.value - 1 + total) % total],
+      films[indexFilmCourant.value],
+      films[(indexFilmCourant.value + 1) % total],
+    ]
+  })
+
+  /**
+   * Affiche le film précédent au centre du carrousel
+   */
+  function filmPrecedent () {
+    const total = filmsALaUne.value.length
+    indexFilmCourant.value = (indexFilmCourant.value - 1 + total) % total
+  }
+
+  /**
+   * Affiche le film suivant au centre du carrousel
+   */
+  function filmSuivant () {
+    indexFilmCourant.value = (indexFilmCourant.value + 1) % filmsALaUne.value.length
+  }
+
+  // ----- Catalogue et pagination -----
+
   const page = ref(1)
-  const pageCount = ref(1)
-  const catalogueRef = ref(null)
+  const grille = ref(null)
 
-  // Tous les films de l'API (pour le carrousel et le classement)
-  const allMovies = ref([])
-  const allLoading = ref(true)
+  const nombrePages = computed(() => Math.ceil(movies.value.length / FILMS_PAR_PAGE))
 
-  // Les films les plus populaires (l'API les renvoie déjà triés par popularité)
-  const featuredIndex = ref(0)
-  const featuredMovies = computed(() => allMovies.value.slice(0, FEATURED_COUNT))
-
-  // Les 3 films visibles du carrousel : précédent, actuel (au centre), suivant
-  const visibleFeatured = computed(() => {
-    const list = featuredMovies.value
-    if (list.length < 3) return list
-    return [-1, 0, 1].map(offset => list[(featuredIndex.value + offset + list.length) % list.length])
+  // Films de la page actuelle
+  const filmsDeLaPage = computed(() => {
+    const debut = (page.value - 1) * FILMS_PAR_PAGE
+    const fin = debut + FILMS_PAR_PAGE
+    const films = []
+    for (const [index, film] of movies.value.entries()) {
+      if (index >= debut && index < fin) {
+        films.push(film)
+      }
+    }
+    return films
   })
 
-  // Classement selon la note, parmi tous les films de l'API
-  const TOP_SIZES = [10, 50, 100]
-  const topSize = ref(10)
-
-  const topMovies = computed(() =>
-    allMovies.value
-      .toSorted((a, b) => (b.voteAverage ?? 0) - (a.voteAverage ?? 0))
-      .slice(0, topSize.value),
-  )
-
-  function previousFeatured () {
-    const count = featuredMovies.value.length
-    featuredIndex.value = (featuredIndex.value - 1 + count) % count
-  }
-
-  function nextFeatured () {
-    featuredIndex.value = (featuredIndex.value + 1) % featuredMovies.value.length
-  }
-
-  async function fetchMovies () {
-    const requestedPage = page.value
-    loading.value = true
-    error.value = null
-    try {
-      const json = await getMovies(`limit=${PAGE_SIZE}&page=${requestedPage}`)
-      // Ignore la réponse si l'utilisateur a déjà changé de page entre-temps
-      if (requestedPage !== page.value) return
-      movies.value = json.data
-      pageCount.value = json.pagination.pages
-    } catch (error_) {
-      error.value = error_.message
-    } finally {
-      if (requestedPage === page.value) loading.value = false
-    }
-  }
-
-  async function fetchAllMovies () {
-    allLoading.value = true
-    try {
-      allMovies.value = await getAllMovies()
-    } catch (error_) {
-      error.value = error_.message
-    } finally {
-      allLoading.value = false
-    }
-  }
-
-  // Changement de page : on charge les nouveaux films et on remonte en haut du catalogue
+  // Changement de page : on donne le focus à la grille pour que le navigateur remonte jusqu'à elle
   watch(page, () => {
-    fetchMovies()
-    catalogueRef.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  })
-
-  onMounted(() => {
-    fetchMovies()
-    fetchAllMovies()
+    if (grille.value) {
+      grille.value.focus()
+    }
   })
 </script>
 
@@ -364,64 +301,6 @@
     gap: 8px;
   }
 
-  /* Cartes de films (placeholders) */
-  .film-card {
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    border: var(--border);
-    border-radius: 8px;
-    background: var(--placeholder);
-    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-    text-decoration: none;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-
-  .film-card:hover {
-    transform: translateY(-4px);
-    border-color: rgba(var(--v-theme-on-surface), 0.3);
-  }
-
-  .film-card__img {
-    position: absolute;
-    inset: 0;
-  }
-
-  .film-card__title {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: 24px 12px 10px;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-    color: #fff;
-    font-weight: 500;
-    line-height: 1.3;
-  }
-
-  .film-card__title small {
-    opacity: 0.8;
-    font-weight: 400;
-  }
-
-/* Image de fond utilisée à la place d'une affiche manquante : elle est carrée avec des
-     bandes noires en haut et en bas, on zoome pour ne garder que l'image (16:9) */
-  .is-backdrop :deep(.v-img__img) {
-    transform: scale(1.78);
-  }
-
-  .film-card--wide {
-    aspect-ratio: 16 / 9;
-  }
-
-  .film-card--poster {
-    aspect-ratio: 2 / 3;
-  }
-
   /* Carrousel */
   .carousel {
     display: flex;
@@ -438,22 +317,58 @@
     gap: 16px;
   }
 
-  .film-card--active {
+  .featured-card,
+  .featured-skeleton {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border: var(--border);
+    border-radius: 8px;
+    background: var(--placeholder);
+  }
+
+  .featured-card {
+    text-decoration: none;
+    transition: transform 0.2s ease;
+  }
+
+  .featured-card:hover {
+    transform: translateY(-4px);
+  }
+
+  .featured-card--active {
     border-width: 2px;
     border-color: rgb(var(--v-theme-primary));
+  }
+
+  .featured-card__img {
+    position: absolute;
+    inset: 0;
+  }
+
+  .featured-card__title {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 24px 12px 10px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    color: #fff;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .featured-skeleton :deep(.v-skeleton-loader__image),
+  .poster-skeleton :deep(.v-skeleton-loader__image) {
+    height: 100%;
   }
 
   /* Catalogue */
   .catalogue {
     display: grid;
     grid-template-columns: 1fr 300px;
-    scroll-margin-top: 16px;
     align-items: start;
     gap: 32px;
-  }
-
-  .catalogue__pagination {
-    margin-top: 32px;
   }
 
   .catalogue__order {
@@ -465,145 +380,26 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
+    scroll-margin-top: 16px;
   }
 
-  /* Top 10 */
-  .top-list {
-    position: sticky;
-    top: 16px;
-    padding: 20px 8px 8px;
-    border-radius: 16px;
-    background: rgba(var(--v-theme-on-surface), 0.03);
+  .catalogue__grid:focus {
+    outline: none;
   }
 
-  .top-list__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    padding: 0 12px 12px;
+  .poster-skeleton {
+    aspect-ratio: 2 / 3;
+    border-radius: 8px;
   }
 
-  .top-switch {
-    display: flex;
-    padding: 3px;
-    border-radius: 999px;
-    background: rgba(var(--v-theme-on-surface), 0.06);
-  }
-
-  .top-switch__btn {
-    min-width: 34px;
-    padding: 4px 8px;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 500;
-    font-variant-numeric: tabular-nums;
-    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  .top-switch__btn:hover {
-    color: rgb(var(--v-theme-on-surface));
-  }
-
-  .top-switch__btn:focus-visible {
-    outline: 2px solid rgb(var(--v-theme-primary));
-    outline-offset: 1px;
-  }
-
-  .top-switch__btn--active {
-    background: rgb(var(--v-theme-surface));
-    color: rgb(var(--v-theme-on-surface));
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
-  }
-
-  .top-list__heading {
-    font-size: 1.1rem;
-    font-weight: 600;
-    letter-spacing: -0.01em;
-  }
-
-  .top-list__caption {
-    font-size: 0.7rem;
-    white-space: nowrap;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: rgba(var(--v-theme-on-surface), var(--v-disabled-opacity));
-  }
-
-  .top-list__items {
-    max-height: 65vh;
-    overflow-y: auto;
-    list-style: none;
-    scrollbar-width: thin;
-  }
-
-  .top-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 12px;
-    border-radius: 10px;
-    color: inherit;
-    text-decoration: none;
-    transition: background-color 0.2s ease;
-  }
-
-  .top-item:hover {
-    background: rgba(var(--v-theme-on-surface), 0.06);
-  }
-
-  .top-item__rank {
-    width: 20px;
-    flex-shrink: 0;
-    font-size: 0.8rem;
-    font-weight: 300;
-    font-variant-numeric: tabular-nums;
-    color: rgba(var(--v-theme-on-surface), var(--v-disabled-opacity));
-  }
-
-  .top-item__poster {
-    flex: 0 0 32px;
-    height: 48px;
-    border-radius: 6px;
-    background: var(--placeholder);
-  }
-
-  .top-item__info {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .top-item__title {
-    overflow: hidden;
-    font-size: 0.85rem;
-    font-weight: 500;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-
-  .top-item__meta {
-    font-size: 0.72rem;
-    color: rgba(var(--v-theme-on-surface), var(--v-medium-emphasis-opacity));
-  }
-
-  .top-item__score {
-    flex-shrink: 0;
-    font-size: 0.8rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
+  .catalogue__pagination {
+    margin-top: 32px;
   }
 
   /* Responsive */
   @media (max-width: 960px) {
     .catalogue {
       grid-template-columns: 1fr;
-    }
-
-    .top-list {
-      position: static;
     }
   }
 
@@ -616,7 +412,8 @@
       grid-template-columns: 1fr;
     }
 
-    .carousel__track .film-card:not(.film-card--active) {
+    .carousel__track .featured-card:not(.featured-card--active),
+    .carousel__track .featured-skeleton:not(:nth-child(2)) {
       display: none;
     }
 

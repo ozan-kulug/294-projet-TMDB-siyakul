@@ -1,5 +1,6 @@
 <template>
-  <v-dialog v-model="open" max-width="720">
+  <!-- La fenêtre est ouverte par le parent (prop « ouvert ») et lui demande de la fermer (événement « fermer ») -->
+  <v-dialog max-width="720" :model-value="ouvert" @update:model-value="$emit('fermer')">
     <v-card class="search-dialog" rounded="xl">
       <v-text-field
         autofocus
@@ -21,7 +22,14 @@
 </template>
 
 <script setup>
-  const open = defineModel({ type: Boolean, default: false })
+  defineProps({
+    ouvert: {
+      type: Boolean,
+      required: true,
+    },
+  })
+
+  defineEmits(['fermer'])
 </script>
 
 <style scoped>

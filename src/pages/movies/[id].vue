@@ -1,11 +1,11 @@
 <template>
   <div class="page">
-    <AppSidebar @search="searchOpen = true" />
-    <SearchDialog v-model="searchOpen" />
+    <AppSidebar @rechercher="rechercheOuverte = true" />
+    <SearchDialog :ouvert="rechercheOuverte" @fermer="rechercheOuverte = false" />
 
     <div class="content">
       <!-- Image de fond du film, fondue dans la couleur de la page -->
-      <div v-if="movie" class="hero" :style="heroStyle" />
+      <div v-if="movie" class="hero" :style="styleImageFond" />
 
       <v-btn
         class="back"
@@ -17,12 +17,12 @@
         Accueil
       </v-btn>
 
-      <!-- Chargement -->
-      <div v-if="loading" class="state">
+      <!-- État 1 : chargement -->
+      <div v-if="isLoading" class="state">
         <v-progress-circular color="primary" indeterminate />
       </div>
 
-      <!-- Erreur (ex. film introuvable) -->
+      <!-- État 2 : erreur de l'API -->
       <div v-else-if="error" class="state">
         <v-alert
           :text="error"
@@ -32,15 +32,26 @@
         />
       </div>
 
-      <section v-else-if="movie" class="movie">
+      <!-- Aucun film avec cet id -->
+      <div v-else-if="!movie" class="state">
+        <v-alert
+          text="Ce film n'existe pas ou a été supprimé."
+          title="Film introuvable"
+          type="warning"
+          variant="tonal"
+        />
+      </div>
+
+      <!-- État 3 : données -->
+      <section v-else class="movie">
         <!-- Informations principales -->
         <header class="movie__header">
           <h1 class="movie__title">{{ movie.title }}</h1>
-          <p v-if="movie.originalTitle && movie.originalTitle !== movie.title" class="movie__original">
+          <p v-if="movie.originalTitle !== movie.title" class="movie__original">
             {{ movie.originalTitle }}
           </p>
 
-          <p class="movie__meta">{{ releaseDate(movie) }}</p>
+          <p class="movie__meta">{{ dateDeSortie }}</p>
 
           <!-- Note sur 5 étoiles, arrondie à la demi-étoile (l'API donne une note sur 10) -->
           <div class="movie__rating">
@@ -49,12 +60,12 @@
               color="amber"
               density="compact"
               half-increments
-              :model-value="Math.round(movie.voteAverage ?? 0) / 2"
+              :model-value="Math.round(movie.voteAverage) / 2"
               readonly
               size="small"
             />
             <span class="movie__rating-text">
-              <strong>{{ rating(movie) }}</strong> / 10 · {{ votes }} votes
+              <strong>{{ movie.voteAverage.toFixed(1) }}</strong> / 10 · {{ movie.voteCount }} votes
             </span>
           </div>
 
@@ -62,8 +73,8 @@
           <dl class="facts">
             <div class="facts__item facts__item--wide">
               <dt>Genres</dt>
-              <dd v-if="movieGenres.length > 0" class="facts__genres">
-                <v-chip v-for="genre in movieGenres" :key="genre" size="small" variant="tonal">
+              <dd v-if="genres.length > 0" class="facts__genres">
+                <v-chip v-for="genre in genres" :key="genre" size="small" variant="tonal">
                   {{ genre }}
                 </v-chip>
               </dd>
@@ -72,27 +83,17 @@
 
             <div class="facts__item">
               <dt>Langue originale</dt>
-              <dd>{{ languageName(movie.originalLanguage) }}</dd>
+              <dd>{{ nomDeLangue(movie.originalLanguage) }}</dd>
             </div>
 
             <div class="facts__item">
               <dt>Classement</dt>
-              <dd>
-                <template v-if="ranks">
-                  {{ ordinal(ranks.byRating) }} <small>sur {{ ranks.total }}</small>
-                </template>
-                <template v-else>…</template>
-              </dd>
+              <dd>{{ rangEnFrancais(rangNote) }} <small>sur {{ movieStore.totalMovies }}</small></dd>
             </div>
 
             <div class="facts__item">
               <dt>Popularité</dt>
-              <dd>
-                <template v-if="ranks">
-                  {{ ordinal(ranks.byPopularity) }} <small>sur {{ ranks.total }}</small>
-                </template>
-                <template v-else>…</template>
-              </dd>
+              <dd>{{ rangEnFrancais(rangPopularite) }} <small>sur {{ movieStore.totalMovies }}</small></dd>
             </div>
           </dl>
         </header>
@@ -105,7 +106,7 @@
             class="movie__poster-img"
             :class="{ 'is-backdrop': !movie.posterPath }"
             cover
-            :src="posterUrl(movie)"
+            :src="movieStore.getImageUrl(movie.posterPath || movie.backdropPath)"
           />
         </div>
 
@@ -120,97 +121,103 @@
 </template>
 
 <script setup>
-  import { computed, ref, watch } from 'vue'
+  import { storeToRefs } from 'pinia'
+  import { computed, ref } from 'vue'
   import { useRoute } from 'vue-router'
-  import {
-    apiGet,
-    getAllMovies,
-    imageUrl,
-    languageName,
-    ordinal,
-    posterUrl,
-    rating,
-    releaseDate,
-  } from '@/utils/movies'
+  import { useMovieStore } from '@/stores/movieStore'
 
   const route = useRoute()
+  const movieStore = useMovieStore()
+  const { isLoading, error } = storeToRefs(movieStore)
 
   // Fenêtre de recherche
-  const searchOpen = ref(false)
+  const rechercheOuverte = ref(false)
 
-  const movie = ref(null)
-  const genres = ref([])
-  const allMovies = ref([])
-  const loading = ref(true)
-  const error = ref(null)
+  // Film correspondant à l'id de l'URL (ex. /movies/25 → id = '25', converti en nombre)
+  const movie = computed(() => movieStore.getMovieById(Number(route.params.id)))
 
-  // Position du film parmi tous les films de l'API, par note et par popularité
-  const ranks = computed(() => {
-    if (!movie.value || allMovies.value.length === 0) return null
-    const rankBy = field => allMovies.value
-      .toSorted((a, b) => (b[field] ?? 0) - (a[field] ?? 0))
-      .findIndex(m => m.id === movie.value.id) + 1
-    return {
-      byRating: rankBy('voteAverage'),
-      byPopularity: rankBy('popularity'),
-      total: allMovies.value.length,
-    }
+  // Noms des genres du film
+  const genres = computed(() => movieStore.getGenreNames(movie.value))
+
+  // Date de sortie en français, ex. « 29 juillet 2026 »
+  const dateDeSortie = computed(() => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' }
+    return new Date(movie.value.releaseDate).toLocaleDateString('fr-FR', options)
   })
 
-  // Noms des genres du film : genreIds correspond au sourceId des genres
-  const movieGenres = computed(() =>
-    (movie.value?.genreIds ?? [])
-      .map(id => genres.value.find(genre => genre.sourceId === id)?.name)
-      .filter(Boolean),
-  )
+  // Position du film parmi tous les films, par note et par popularité (1 = le meilleur)
+  const rangNote = computed(() => movieStore.moviesByRating.indexOf(movie.value) + 1)
+  const rangPopularite = computed(() => movieStore.moviesByPopularity.indexOf(movie.value) + 1)
 
-  const votes = computed(() => (movie.value?.voteCount ?? 0).toLocaleString('fr-CH'))
-
-  // Image de fond : on prend le backdrop, ou l'affiche s'il n'y en a pas
-  const heroStyle = computed(() => {
-    const url = imageUrl(movie.value?.backdropPath ?? movie.value?.posterPath)
-    return url ? { backgroundImage: `url(${url})` } : {}
+  // Image de fond : l'image « backdrop » du film, ou son affiche s'il n'en a pas
+  const styleImageFond = computed(() => {
+    const url = movieStore.getImageUrl(movie.value.backdropPath || movie.value.posterPath)
+    return { backgroundImage: `url(${url})` }
   })
 
-  async function fetchGenres () {
-    try {
-      const json = await apiGet('/genres?limit=100')
-      genres.value = json.data
-    } catch {
-      // Les genres sont un bonus : la page reste utilisable sans eux
-      genres.value = []
+  /**
+   * Retourne le nom en français d'une langue à partir de son code
+   * @param {string} code - code de la langue (ex. « en »)
+   * @return {string} nom de la langue (ex. « Anglais »)
+   */
+  function nomDeLangue (code) {
+    switch (code) {
+      case 'en': {
+        return 'Anglais'
+      }
+      case 'fr': {
+        return 'Français'
+      }
+      case 'es': {
+        return 'Espagnol'
+      }
+      case 'de': {
+        return 'Allemand'
+      }
+      case 'ja': {
+        return 'Japonais'
+      }
+      case 'ko': {
+        return 'Coréen'
+      }
+      case 'zh': {
+        return 'Chinois'
+      }
+      case 'hi': {
+        return 'Hindi'
+      }
+      case 'ta': {
+        return 'Tamoul'
+      }
+      case 'te': {
+        return 'Télougou'
+      }
+      case 'id': {
+        return 'Indonésien'
+      }
+      case 'tl': {
+        return 'Tagalog'
+      }
+      case 'tr': {
+        return 'Turc'
+      }
+      case 'ru': {
+        return 'Russe'
+      }
+      default: {
+        return code ? code.toUpperCase() : 'Inconnue'
+      }
     }
   }
 
-  async function fetchAllMovies () {
-    try {
-      allMovies.value = await getAllMovies()
-    } catch {
-      // Le classement est un bonus : la page reste utilisable sans lui
-      allMovies.value = []
-    }
+  /**
+   * Retourne un rang en français : 1 → « 1er », 12 → « 12e »
+   * @param {number} rang - position dans le classement
+   * @return {string} rang en français
+   */
+  function rangEnFrancais (rang) {
+    return rang === 1 ? '1er' : `${rang}e`
   }
-
-  async function fetchMovie (id) {
-    loading.value = true
-    error.value = null
-    movie.value = null
-    try {
-      movie.value = await apiGet(`/movies/${id}`)
-    } catch (error_) {
-      error.value = error_.message
-    } finally {
-      loading.value = false
-    }
-  }
-
-  // Recharge le film quand l'id change dans l'URL (ex. passage d'un film à un autre)
-  watch(() => route.params.id, id => {
-    if (id) fetchMovie(id)
-  }, { immediate: true })
-
-  fetchGenres()
-  fetchAllMovies()
 </script>
 
 <style scoped>

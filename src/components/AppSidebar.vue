@@ -7,7 +7,7 @@
       icon="mdi-magnify"
       title="Rechercher"
       variant="text"
-      @click="emit('search')"
+      @click="$emit('rechercher')"
     />
     <v-btn color="primary" icon="mdi-menu" title="Menu" variant="text" />
     <v-btn icon="mdi-dice-5-outline" title="Film au hasard" variant="text" />
@@ -19,7 +19,8 @@
 </template>
 
 <script setup>
-  const emit = defineEmits(['search'])
+  // Événement envoyé au parent quand on clique sur la loupe
+  defineEmits(['rechercher'])
 </script>
 
 <style scoped>

@@ -11,8 +11,10 @@ declare module 'vue' {
     AppFooter: typeof import('./src/components/AppFooter.vue')['default']
     AppSidebar: typeof import('./src/components/AppSidebar.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    MovieCard: typeof import('./src/components/MovieCard.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SearchDialog: typeof import('./src/components/SearchDialog.vue')['default']
+    TopMovies: typeof import('./src/components/TopMovies.vue')['default']
   }
 }
