@@ -10,7 +10,13 @@
       @click="$emit('rechercher')"
     />
     <v-btn color="primary" icon="mdi-menu" title="Menu" variant="text" />
-    <v-btn icon="mdi-dice-5-outline" title="Film au hasard" variant="text" />
+    <v-btn
+      :disabled="movieStore.isLoading"
+      icon="mdi-dice-5-outline"
+      title="Film au hasard"
+      variant="text"
+      @click="allerAuHasard"
+    />
 
     <v-spacer />
 
@@ -19,8 +25,24 @@
 </template>
 
 <script setup>
+  import { useRouter } from 'vue-router'
+  import { useMovieStore } from '@/stores/movieStore'
+
   // Événement envoyé au parent quand on clique sur la loupe
   defineEmits(['rechercher'])
+
+  const router = useRouter()
+  const movieStore = useMovieStore()
+
+  /**
+   * Ouvre la page d'un film choisi au hasard
+   */
+  function allerAuHasard () {
+    const film = movieStore.getRandomMovie()
+    if (film) {
+      router.push(`/movies/${film.id}`)
+    }
+  }
 </script>
 
 <style scoped>

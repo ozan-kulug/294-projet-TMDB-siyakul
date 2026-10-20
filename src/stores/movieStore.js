@@ -51,6 +51,15 @@ export const useMovieStore = defineStore('movie', {
     getImageUrl: () => {
       return path => path ? `${IMAGES_URL}${path}` : ''
     },
+    getRandomMovie: state => {
+      return () => {
+        if (state.movies.length === 0) {
+          return null
+        }
+        const index = Math.floor(Math.random() * state.movies.length)
+        return state.movies[index]
+      }
+    },
   },
 
   actions: {
