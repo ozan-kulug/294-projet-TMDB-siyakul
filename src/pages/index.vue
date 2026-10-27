@@ -1,142 +1,135 @@
 <template>
   <div class="page">
-    <AppSidebar @rechercher="rechercheOuverte = true" />
+    <!-- En-tête -->
+    <header class="topbar">
+      <div class="logo">Logo</div>
+      <v-btn icon="mdi-heart-outline" size="large" title="Favoris" variant="text" />
+    </header>
 
-    <div class="content">
-      <!-- En-tête -->
-      <header class="topbar">
-        <div class="logo">Logo</div>
-        <v-btn icon="mdi-heart-outline" size="large" title="Favoris" variant="text" />
-      </header>
+    <!-- Introduction -->
+    <section class="intro">
+      <h1 class="text-h4 font-weight-bold mb-2">Heading</h1>
+      <p class="text-body-1 text-medium-emphasis">
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
+        incididunt ut labore et dolore magna aliqua.
+      </p>
+    </section>
 
-      <!-- Introduction -->
-      <section class="intro">
-        <h1 class="text-h4 font-weight-bold mb-2">Heading</h1>
-        <p class="text-body-1 text-medium-emphasis">
-          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-          incididunt ut labore et dolore magna aliqua.
-        </p>
-      </section>
+    <!-- Recherche et filtres -->
+    <section class="search">
+      <div class="search__row">
+        <!-- Champ en lecture seule : il sert uniquement à ouvrir la fenêtre de recherche -->
+        <v-text-field
+          class="search__field"
+          density="compact"
+          hide-details
+          label="Rechercher"
+          prepend-inner-icon="mdi-magnify"
+          readonly
+          variant="outlined"
+          @click="appStore.ouvrirRecherche()"
+          @keydown.enter="appStore.ouvrirRecherche()"
+        />
+        <v-btn prepend-icon="mdi-dice-5-outline" variant="outlined">Au hasard</v-btn>
+        <v-btn color="primary" icon="mdi-filter" title="Filtres" variant="text" />
+      </div>
 
-      <!-- Recherche et filtres -->
-      <section class="search">
-        <div class="search__row">
-          <!-- Champ en lecture seule : il sert uniquement à ouvrir la fenêtre de recherche -->
-          <v-text-field
-            class="search__field"
-            density="compact"
-            hide-details
-            label="Rechercher"
-            prepend-inner-icon="mdi-magnify"
-            readonly
-            variant="outlined"
-            @click="rechercheOuverte = true"
-            @keydown.enter="rechercheOuverte = true"
-          />
-          <v-btn prepend-icon="mdi-dice-5-outline" variant="outlined">Au hasard</v-btn>
-          <v-btn color="primary" icon="mdi-filter" title="Filtres" variant="text" />
-        </div>
+      <div class="search__genres">
+        <v-chip v-for="n in 5" :key="n" variant="outlined">Genre {{ n }}</v-chip>
+      </div>
+    </section>
 
-        <div class="search__genres">
-          <v-chip v-for="n in 5" :key="n" variant="outlined">Genre {{ n }}</v-chip>
-        </div>
-      </section>
+    <!-- Erreur de chargement -->
+    <v-alert
+      v-if="error"
+      class="mb-6"
+      :text="error"
+      title="Impossible de charger les films"
+      type="error"
+      variant="tonal"
+    />
 
-      <!-- Fenêtre de recherche -->
-      <SearchDialog :ouvert="rechercheOuverte" @fermer="rechercheOuverte = false" />
-
-      <!-- Erreur de chargement -->
-      <v-alert
-        v-if="error"
-        class="mb-6"
-        :text="error"
-        title="Impossible de charger les films"
-        type="error"
-        variant="tonal"
+    <!-- Carrousel des films les plus populaires -->
+    <section class="carousel">
+      <v-btn
+        class="carousel__arrow"
+        :disabled="isLoading"
+        icon="mdi-chevron-left"
+        title="Précédent"
+        variant="outlined"
+        @click="filmPrecedent"
       />
 
-      <!-- Carrousel des films les plus populaires -->
-      <section class="carousel">
-        <v-btn
-          class="carousel__arrow"
-          :disabled="isLoading"
-          icon="mdi-chevron-left"
-          title="Précédent"
+      <div class="carousel__track">
+        <template v-if="isLoading">
+          <v-skeleton-loader v-for="n in 3" :key="n" class="featured-skeleton" type="image" />
+        </template>
+
+        <RouterLink
+          v-for="movie in filmsVisibles"
+          v-else
+          :key="movie.id"
+          class="featured-card"
+          :class="{ 'featured-card--active': movie.id === filmCourant.id }"
+          :to="`/movies/${movie.id}`"
+        >
+          <v-img
+            :alt="movie.title"
+            class="featured-card__img"
+            cover
+            :src="movieStore.getImageUrl(movie.backdropPath)"
+          />
+          <span class="featured-card__title">{{ movie.title }}</span>
+        </RouterLink>
+      </div>
+
+      <v-btn
+        class="carousel__arrow"
+        :disabled="isLoading"
+        icon="mdi-chevron-right"
+        title="Suivant"
+        variant="outlined"
+        @click="filmSuivant"
+      />
+    </section>
+
+    <!-- Catalogue + Top -->
+    <section class="catalogue">
+      <div class="catalogue__main">
+        <v-select
+          class="catalogue__order"
+          density="compact"
+          hide-details
+          :items="['Popularité', 'Note', 'Date de sortie', 'Titre']"
+          label="Ordre"
           variant="outlined"
-          @click="filmPrecedent"
         />
 
-        <div class="carousel__track">
+        <div class="catalogue__grid">
           <template v-if="isLoading">
-            <v-skeleton-loader v-for="n in 3" :key="n" class="featured-skeleton" type="image" />
+            <v-skeleton-loader v-for="n in 6" :key="n" class="poster-skeleton" type="image" />
           </template>
 
-          <RouterLink
-            v-for="movie in filmsVisibles"
-            v-else
-            :key="movie.id"
-            class="featured-card"
-            :class="{ 'featured-card--active': movie.id === filmCourant.id }"
-            :to="`/movies/${movie.id}`"
-          >
-            <v-img
-              :alt="movie.title"
-              class="featured-card__img"
-              cover
-              :src="movieStore.getImageUrl(movie.backdropPath)"
-            />
-            <span class="featured-card__title">{{ movie.title }}</span>
-          </RouterLink>
+          <MovieCard v-for="movie in filmsDeLaPage" v-else :key="movie.id" :movie="movie" />
         </div>
 
-        <v-btn
-          class="carousel__arrow"
-          :disabled="isLoading"
-          icon="mdi-chevron-right"
-          title="Suivant"
-          variant="outlined"
-          @click="filmSuivant"
+        <p v-if="!isLoading && !error && movies.length === 0" class="text-medium-emphasis">
+          Aucun film trouvé.
+        </p>
+
+        <v-pagination
+          v-if="nombrePages > 1"
+          v-model="page"
+          class="catalogue__pagination"
+          density="comfortable"
+          :length="nombrePages"
+          rounded="circle"
+          :total-visible="5"
         />
-      </section>
+      </div>
 
-      <!-- Catalogue + Top -->
-      <section class="catalogue">
-        <div class="catalogue__main">
-          <v-select
-            class="catalogue__order"
-            density="compact"
-            hide-details
-            :items="['Popularité', 'Note', 'Date de sortie', 'Titre']"
-            label="Ordre"
-            variant="outlined"
-          />
-
-          <div class="catalogue__grid">
-            <template v-if="isLoading">
-              <v-skeleton-loader v-for="n in 6" :key="n" class="poster-skeleton" type="image" />
-            </template>
-
-            <MovieCard v-for="movie in filmsDeLaPage" v-else :key="movie.id" :movie="movie" />
-          </div>
-
-          <p v-if="!isLoading && !error && movies.length === 0" class="text-medium-emphasis">
-            Aucun film trouvé.
-          </p>
-
-          <v-pagination
-            v-if="nombrePages > 1"
-            v-model="page"
-            class="catalogue__pagination"
-            density="comfortable"
-            :length="nombrePages"
-            rounded="circle"
-            :total-visible="5"
-          />
-        </div>
-
-        <TopMovies />
-      </section>
-    </div>
+      <TopMovies />
+    </section>
   </div>
 </template>
 
@@ -144,6 +137,7 @@
   import { storeToRefs } from 'pinia'
   import { computed, ref } from 'vue'
   import { RouterLink } from 'vue-router'
+  import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
 
   // Nombre de films dans le carrousel
@@ -154,8 +148,8 @@
   const movieStore = useMovieStore()
   const { movies, moviesByPopularity, isLoading, error } = storeToRefs(movieStore)
 
-  // Fenêtre de recherche
-  const rechercheOuverte = ref(false)
+  // Store de l'interface (pour ouvrir la fenêtre de recherche)
+  const appStore = useAppStore()
 
   // ----- Carrousel -----
 
@@ -230,8 +224,7 @@
     --border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
     --placeholder: rgba(var(--v-theme-on-surface), 0.06);
 
-    display: flex;
-    min-height: 100%;
+    padding: 16px 24px 32px;
   }
 
   .logo {
@@ -242,13 +235,6 @@
     border: var(--border);
     border-radius: 50%;
     font-size: 0.8rem;
-  }
-
-  /* Contenu principal */
-  .content {
-    flex: 1;
-    min-width: 0;
-    padding: 16px 24px 32px;
   }
 
   .topbar {
@@ -390,7 +376,7 @@
   }
 
   @media (max-width: 600px) {
-    .content {
+    .page {
       padding: 12px 16px 24px;
     }
 

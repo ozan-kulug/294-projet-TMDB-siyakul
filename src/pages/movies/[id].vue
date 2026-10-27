@@ -1,137 +1,129 @@
 <template>
   <div class="page">
-    <AppSidebar @rechercher="rechercheOuverte = true" />
-    <SearchDialog :ouvert="rechercheOuverte" @fermer="rechercheOuverte = false" />
+    <!-- Image de fond du film, fondue dans la couleur de la page -->
+    <div v-if="movie" class="hero" :style="styleImageFond" />
 
-    <div class="content">
-      <!-- Image de fond du film, fondue dans la couleur de la page -->
-      <div v-if="movie" class="hero" :style="styleImageFond" />
+    <v-btn
+      class="back"
+      prepend-icon="mdi-arrow-left"
+      size="small"
+      to="/"
+      variant="text"
+    >
+      Accueil
+    </v-btn>
 
-      <v-btn
-        class="back"
-        prepend-icon="mdi-arrow-left"
-        size="small"
-        to="/"
-        variant="text"
-      >
-        Accueil
-      </v-btn>
+    <!-- État 1 : chargement -->
+    <div v-if="isLoading" class="state">
+      <v-progress-circular color="primary" indeterminate />
+    </div>
 
-      <!-- État 1 : chargement -->
-      <div v-if="isLoading" class="state">
-        <v-progress-circular color="primary" indeterminate />
-      </div>
+    <!-- État 2 : erreur de l'API -->
+    <div v-else-if="error" class="state">
+      <v-alert
+        :text="error"
+        title="Impossible d'afficher ce film"
+        type="error"
+        variant="tonal"
+      />
+    </div>
 
-      <!-- État 2 : erreur de l'API -->
-      <div v-else-if="error" class="state">
-        <v-alert
-          :text="error"
-          title="Impossible d'afficher ce film"
-          type="error"
-          variant="tonal"
-        />
-      </div>
+    <!-- Aucun film avec cet id -->
+    <div v-else-if="!movie" class="state">
+      <v-alert
+        text="Ce film n'existe pas ou a été supprimé."
+        title="Film introuvable"
+        type="warning"
+        variant="tonal"
+      />
+    </div>
 
-      <!-- Aucun film avec cet id -->
-      <div v-else-if="!movie" class="state">
-        <v-alert
-          text="Ce film n'existe pas ou a été supprimé."
-          title="Film introuvable"
-          type="warning"
-          variant="tonal"
-        />
-      </div>
+    <!-- État 3 : données -->
+    <section v-else class="movie">
+      <!-- Informations principales -->
+      <header class="movie__header">
+        <h1 class="movie__title">{{ movie.title }}</h1>
+        <p v-if="movie.originalTitle !== movie.title" class="movie__original">
+          {{ movie.originalTitle }}
+        </p>
 
-      <!-- État 3 : données -->
-      <section v-else class="movie">
-        <!-- Informations principales -->
-        <header class="movie__header">
-          <h1 class="movie__title">{{ movie.title }}</h1>
-          <p v-if="movie.originalTitle !== movie.title" class="movie__original">
-            {{ movie.originalTitle }}
-          </p>
+        <p class="movie__meta">{{ dateDeSortie }}</p>
 
-          <p class="movie__meta">{{ dateDeSortie }}</p>
-
-          <!-- Note sur 5 étoiles, arrondie à la demi-étoile (l'API donne une note sur 10) -->
-          <div class="movie__rating">
-            <v-rating
-              active-color="amber"
-              color="amber"
-              density="compact"
-              half-increments
-              :model-value="Math.round(movie.voteAverage) / 2"
-              readonly
-              size="small"
-            />
-            <span class="movie__rating-text">
-              <strong>{{ movie.voteAverage.toFixed(1) }}</strong> / 10 · {{ movie.voteCount }} votes
-            </span>
-          </div>
-
-          <!-- Fiche du film -->
-          <dl class="facts">
-            <div class="facts__item facts__item--wide">
-              <dt>Genres</dt>
-              <dd v-if="genres.length > 0" class="facts__genres">
-                <v-chip v-for="genre in genres" :key="genre" size="small" variant="tonal">
-                  {{ genre }}
-                </v-chip>
-              </dd>
-              <dd v-else>–</dd>
-            </div>
-
-            <div class="facts__item">
-              <dt>Langue originale</dt>
-              <dd>{{ nomDeLangue(movie.originalLanguage) }}</dd>
-            </div>
-
-            <div class="facts__item">
-              <dt>Classement</dt>
-              <dd>{{ rangEnFrancais(rangNote) }} <small>sur {{ movieStore.totalMovies }}</small></dd>
-            </div>
-
-            <div class="facts__item">
-              <dt>Popularité</dt>
-              <dd>{{ rangEnFrancais(rangPopularite) }} <small>sur {{ movieStore.totalMovies }}</small></dd>
-            </div>
-          </dl>
-        </header>
-
-        <!-- Affiche -->
-        <div class="movie__poster">
-          <v-icon icon="mdi-movie-outline" size="48" />
-          <v-img
-            :alt="movie.title"
-            class="movie__poster-img"
-            :class="{ 'is-backdrop': !movie.posterPath }"
-            cover
-            :src="movieStore.getImageUrl(movie.posterPath || movie.backdropPath)"
+        <!-- Note sur 5 étoiles, arrondie à la demi-étoile (l'API donne une note sur 10) -->
+        <div class="movie__rating">
+          <v-rating
+            active-color="amber"
+            color="amber"
+            density="compact"
+            half-increments
+            :model-value="Math.round(movie.voteAverage) / 2"
+            readonly
+            size="small"
           />
+          <span class="movie__rating-text">
+            <strong>{{ movie.voteAverage.toFixed(1) }}</strong> / 10 · {{ movie.voteCount }} votes
+          </span>
         </div>
 
-        <!-- Résumé -->
-        <section class="movie__overview">
-          <h2 class="movie__subtitle">Résumé</h2>
-          <p>{{ movie.overview || 'Aucun résumé disponible.' }}</p>
-        </section>
+        <!-- Fiche du film -->
+        <dl class="facts">
+          <div class="facts__item facts__item--wide">
+            <dt>Genres</dt>
+            <dd v-if="genres.length > 0" class="facts__genres">
+              <v-chip v-for="genre in genres" :key="genre" size="small" variant="tonal">
+                {{ genre }}
+              </v-chip>
+            </dd>
+            <dd v-else>–</dd>
+          </div>
+
+          <div class="facts__item">
+            <dt>Langue originale</dt>
+            <dd>{{ nomDeLangue(movie.originalLanguage) }}</dd>
+          </div>
+
+          <div class="facts__item">
+            <dt>Classement</dt>
+            <dd>{{ rangEnFrancais(rangNote) }} <small>sur {{ movieStore.totalMovies }}</small></dd>
+          </div>
+
+          <div class="facts__item">
+            <dt>Popularité</dt>
+            <dd>{{ rangEnFrancais(rangPopularite) }} <small>sur {{ movieStore.totalMovies }}</small></dd>
+          </div>
+        </dl>
+      </header>
+
+      <!-- Affiche -->
+      <div class="movie__poster">
+        <v-icon icon="mdi-movie-outline" size="48" />
+        <v-img
+          :alt="movie.title"
+          class="movie__poster-img"
+          :class="{ 'is-backdrop': !movie.posterPath }"
+          cover
+          :src="movieStore.getImageUrl(movie.posterPath || movie.backdropPath)"
+        />
+      </div>
+
+      <!-- Résumé -->
+      <section class="movie__overview">
+        <h2 class="movie__subtitle">Résumé</h2>
+        <p>{{ movie.overview || 'Aucun résumé disponible.' }}</p>
       </section>
-    </div>
+    </section>
   </div>
 </template>
 
 <script setup>
   import { storeToRefs } from 'pinia'
-  import { computed, ref } from 'vue'
+  import { computed } from 'vue'
   import { useRoute } from 'vue-router'
   import { useMovieStore } from '@/stores/movieStore'
 
   const route = useRoute()
   const movieStore = useMovieStore()
   const { isLoading, error } = storeToRefs(movieStore)
-
-  // Fenêtre de recherche
-  const rechercheOuverte = ref(false)
 
   // Film correspondant à l'id de l'URL (ex. /movies/25 → id = '25', converti en nombre)
   const movie = computed(() => movieStore.getMovieById(Number(route.params.id)))
@@ -222,14 +214,8 @@
 
 <style scoped>
   .page {
-    display: flex;
-    min-height: 100%;
-  }
-
-  .content {
     position: relative;
-    flex: 1;
-    min-width: 0;
+    min-height: 100%;
     padding: 24px 48px 48px;
     overflow: hidden;
   }
@@ -405,7 +391,7 @@
 
   /* Mobile : affiche en haut, puis infos et résumé */
   @media (max-width: 760px) {
-    .content {
+    .page {
       padding: 16px;
     }
 

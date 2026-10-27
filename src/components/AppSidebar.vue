@@ -1,27 +1,30 @@
 <template>
-  <aside class="sidebar">
-    <router-link class="sidebar__logo" title="Accueil" to="/">Logo</router-link>
+  <!-- Barre latérale étroite (rail) toujours visible, fournie par Vuetify -->
+  <v-navigation-drawer permanent rail rail-width="64">
+    <div class="d-flex flex-column align-center ga-2 py-3 fill-height">
+      <router-link class="sidebar__logo mb-3" title="Accueil" to="/">Logo</router-link>
 
-    <v-btn
-      color="primary"
-      icon="mdi-magnify"
-      title="Rechercher"
-      variant="text"
-      @click="$emit('rechercher')"
-    />
-    <v-btn color="primary" icon="mdi-menu" title="Menu" variant="text" />
-    <v-btn
-      :disabled="movieStore.isLoading"
-      icon="mdi-dice-5-outline"
-      title="Film au hasard"
-      variant="text"
-      @click="allerAuHasard"
-    />
+      <v-btn
+        color="primary"
+        icon="mdi-magnify"
+        title="Rechercher"
+        variant="text"
+        @click="$emit('rechercher')"
+      />
+      <v-btn color="primary" icon="mdi-menu" title="Menu" variant="text" />
+      <v-btn
+        :disabled="movieStore.isLoading"
+        icon="mdi-dice-5-outline"
+        title="Film au hasard"
+        variant="text"
+        @click="allerAuHasard"
+      />
 
-    <v-spacer />
+      <v-spacer />
 
-    <v-btn icon="mdi-cog-outline" title="Paramètres" variant="text" />
-  </aside>
+      <v-btn icon="mdi-cog-outline" title="Paramètres" variant="text" />
+    </div>
+  </v-navigation-drawer>
 </template>
 
 <script setup>
@@ -46,26 +49,12 @@
 </script>
 
 <style scoped>
-  .sidebar {
-    position: sticky;
-    top: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    width: 64px;
-    height: calc(100dvh - var(--v-layout-bottom, 0px));
-    padding: 12px 0;
-    border-right: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    flex-shrink: 0;
-  }
-
+  /* Logo ovale (pas d'équivalent direct dans Vuetify) */
   .sidebar__logo {
     display: grid;
     place-items: center;
     width: 48px;
     height: 32px;
-    margin-bottom: 12px;
     border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
     border-radius: 50%;
     font-size: 0.8rem;
