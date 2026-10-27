@@ -1,29 +1,30 @@
 <template>
-  <div class="page">
+  <v-container class="pa-4 pa-sm-6" fluid>
     <!-- En-tête -->
-    <header class="topbar">
-      <div class="logo">Logo</div>
+    <div class="d-flex justify-end align-center ga-2">
+      <v-chip variant="outlined">Logo</v-chip>
       <v-btn icon="mdi-heart-outline" size="large" title="Favoris" variant="text" />
-    </header>
+    </div>
 
     <!-- Introduction -->
-    <section class="intro">
+    <v-sheet class="mb-8" color="transparent" max-width="520">
       <h1 class="text-h4 font-weight-bold mb-2">Heading</h1>
       <p class="text-body-1 text-medium-emphasis">
         Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
         incididunt ut labore et dolore magna aliqua.
       </p>
-    </section>
+    </v-sheet>
 
     <!-- Recherche et filtres -->
-    <section class="search">
-      <div class="search__row">
+    <section class="mb-8">
+      <v-sheet class="d-flex flex-wrap align-center ga-3 mb-3" color="transparent" max-width="560">
         <!-- Champ en lecture seule : il sert uniquement à ouvrir la fenêtre de recherche -->
         <v-text-field
-          class="search__field"
+          class="search-field flex-grow-1"
           density="compact"
           hide-details
           label="Rechercher"
+          min-width="220"
           prepend-inner-icon="mdi-magnify"
           readonly
           variant="outlined"
@@ -32,9 +33,9 @@
         />
         <v-btn prepend-icon="mdi-dice-5-outline" variant="outlined">Au hasard</v-btn>
         <v-btn color="primary" icon="mdi-filter" title="Filtres" variant="text" />
-      </div>
+      </v-sheet>
 
-      <div class="search__genres">
+      <div class="d-flex flex-wrap ga-2">
         <v-chip v-for="n in 5" :key="n" variant="outlined">Genre {{ n }}</v-chip>
       </div>
     </section>
@@ -50,68 +51,108 @@
     />
 
     <!-- Carrousel des films les plus populaires -->
-    <section class="carousel">
-      <v-btn
-        class="carousel__arrow"
-        :disabled="isLoading"
-        icon="mdi-chevron-left"
-        title="Précédent"
-        variant="outlined"
-        @click="filmPrecedent"
-      />
+    <!-- Flèches en colonnes « auto » (leur largeur), films dans la colonne du milieu (le reste) -->
+    <v-row align="center" class="mb-10" no-gutters>
+      <v-col cols="auto">
+        <v-btn
+          :disabled="isLoading"
+          icon="mdi-chevron-left"
+          title="Précédent"
+          variant="outlined"
+          @click="filmPrecedent"
+        />
+      </v-col>
 
-      <div class="carousel__track">
-        <template v-if="isLoading">
-          <v-skeleton-loader v-for="n in 3" :key="n" class="featured-skeleton" type="image" />
-        </template>
+      <v-col class="px-3">
+        <v-row align="center">
+          <!-- Chargement : 3 cadres vides (seul celui du milieu sur mobile) -->
+          <template v-if="isLoading">
+            <v-col
+              v-for="n in 3"
+              :key="n"
+              :class="{ 'd-none d-sm-block': n !== 2 }"
+              cols="12"
+              sm="4"
+            >
+              <v-responsive :aspect-ratio="16 / 9" class="rounded-lg bg-surface-light" />
+            </v-col>
+          </template>
 
-        <RouterLink
-          v-for="movie in filmsVisibles"
-          v-else
-          :key="movie.id"
-          class="featured-card"
-          :class="{ 'featured-card--active': movie.id === filmCourant.id }"
-          :to="`/movies/${movie.id}`"
-        >
-          <v-img
-            :alt="movie.title"
-            class="featured-card__img"
-            cover
-            :src="movieStore.getImageUrl(movie.backdropPath)"
-          />
-          <span class="featured-card__title">{{ movie.title }}</span>
-        </RouterLink>
-      </div>
+          <!-- Les 3 films visibles (seul le film du centre sur mobile) -->
+          <v-col
+            v-for="movie in filmsVisibles"
+            v-else
+            :key="movie.id"
+            :class="{ 'd-none d-sm-block': movie.id !== filmCourant.id }"
+            cols="12"
+            sm="4"
+          >
+            <v-card
+              :color="movie.id === filmCourant.id ? 'primary' : undefined"
+              hover
+              rounded="lg"
+              :to="`/movies/${movie.id}`"
+              :variant="movie.id === filmCourant.id ? 'outlined' : 'elevated'"
+            >
+              <v-img
+                :alt="movie.title"
+                :aspect-ratio="16 / 9"
+                class="align-end"
+                cover
+                gradient="to bottom, transparent 50%, rgba(0, 0, 0, 0.85)"
+                :src="movieStore.getImageUrl(movie.backdropPath)"
+              >
+                <v-card-title class="text-white text-body-1 font-weight-medium text-wrap">
+                  {{ movie.title }}
+                </v-card-title>
+              </v-img>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-col>
 
-      <v-btn
-        class="carousel__arrow"
-        :disabled="isLoading"
-        icon="mdi-chevron-right"
-        title="Suivant"
-        variant="outlined"
-        @click="filmSuivant"
-      />
-    </section>
+      <v-col cols="auto">
+        <v-btn
+          :disabled="isLoading"
+          icon="mdi-chevron-right"
+          title="Suivant"
+          variant="outlined"
+          @click="filmSuivant"
+        />
+      </v-col>
+    </v-row>
 
-    <!-- Catalogue + Top -->
-    <section class="catalogue">
-      <div class="catalogue__main">
+    <!-- Catalogue (à gauche) + Top (à droite, en dessous sur petit écran) -->
+    <v-row>
+      <v-col cols="12" lg="9" md="8">
         <v-select
-          class="catalogue__order"
+          class="mb-4"
           density="compact"
           hide-details
           :items="['Popularité', 'Note', 'Date de sortie', 'Titre']"
           label="Ordre"
+          max-width="220"
           variant="outlined"
         />
 
-        <div class="catalogue__grid">
+        <v-row>
+          <!-- Chargement : 6 cadres vides -->
           <template v-if="isLoading">
-            <v-skeleton-loader v-for="n in 6" :key="n" class="poster-skeleton" type="image" />
+            <v-col v-for="n in 6" :key="n" cols="6" sm="4">
+              <v-responsive :aspect-ratio="2 / 3" class="rounded-lg bg-surface-light" />
+            </v-col>
           </template>
 
-          <MovieCard v-for="movie in filmsDeLaPage" v-else :key="movie.id" :movie="movie" />
-        </div>
+          <v-col
+            v-for="movie in filmsDeLaPage"
+            v-else
+            :key="movie.id"
+            cols="6"
+            sm="4"
+          >
+            <MovieCard :movie="movie" />
+          </v-col>
+        </v-row>
 
         <p v-if="!isLoading && !error && movies.length === 0" class="text-medium-emphasis">
           Aucun film trouvé.
@@ -120,23 +161,24 @@
         <v-pagination
           v-if="nombrePages > 1"
           v-model="page"
-          class="catalogue__pagination"
+          class="mt-8"
           density="comfortable"
           :length="nombrePages"
           rounded="circle"
           :total-visible="5"
         />
-      </div>
+      </v-col>
 
-      <TopMovies />
-    </section>
-  </div>
+      <v-col cols="12" lg="3" md="4">
+        <TopMovies />
+      </v-col>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup>
   import { storeToRefs } from 'pinia'
   import { computed, ref } from 'vue'
-  import { RouterLink } from 'vue-router'
   import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
 
@@ -220,178 +262,8 @@
 </script>
 
 <style scoped>
-  .page {
-    --border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    --placeholder: rgba(var(--v-theme-on-surface), 0.06);
-
-    padding: 16px 24px 32px;
-  }
-
-  .logo {
-    display: grid;
-    place-items: center;
-    width: 56px;
-    height: 32px;
-    border: var(--border);
-    border-radius: 50%;
-    font-size: 0.8rem;
-  }
-
-  .topbar {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .intro {
-    max-width: 520px;
-    margin-bottom: 32px;
-  }
-
-  /* Recherche */
-  .search {
-    margin-bottom: 32px;
-  }
-
-  .search__row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
-    max-width: 560px;
-    margin-bottom: 12px;
-  }
-
-  .search__field {
-    flex: 1;
-    min-width: 220px;
-  }
-
-  .search__field :deep(input) {
+  /* Le champ de recherche est en lecture seule : on affiche quand même la main au survol */
+  .search-field :deep(input) {
     cursor: pointer;
-  }
-
-  .search__genres {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  /* Carrousel */
-  .carousel {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 40px;
-  }
-
-  .carousel__track {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 1fr 1.2fr 1fr;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .featured-card,
-  .featured-skeleton {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    overflow: hidden;
-    border: var(--border);
-    border-radius: 8px;
-    background: var(--placeholder);
-  }
-
-  .featured-card {
-    text-decoration: none;
-    transition: transform 0.2s ease;
-  }
-
-  .featured-card:hover {
-    transform: translateY(-4px);
-  }
-
-  .featured-card--active {
-    border-width: 2px;
-    border-color: rgb(var(--v-theme-primary));
-  }
-
-  .featured-card__img {
-    position: absolute;
-    inset: 0;
-  }
-
-  .featured-card__title {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    padding: 24px 12px 10px;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
-    color: #fff;
-    font-weight: 500;
-    line-height: 1.3;
-  }
-
-  .featured-skeleton :deep(.v-skeleton-loader__image),
-  .poster-skeleton :deep(.v-skeleton-loader__image) {
-    height: 100%;
-  }
-
-  /* Catalogue */
-  .catalogue {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    align-items: start;
-    gap: 32px;
-  }
-
-  .catalogue__order {
-    max-width: 220px;
-    margin-bottom: 16px;
-  }
-
-  .catalogue__grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-
-  .poster-skeleton {
-    aspect-ratio: 2 / 3;
-    border-radius: 8px;
-  }
-
-  .catalogue__pagination {
-    margin-top: 32px;
-  }
-
-  /* Responsive */
-  @media (max-width: 960px) {
-    .catalogue {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .page {
-      padding: 12px 16px 24px;
-    }
-
-    .carousel__track {
-      grid-template-columns: 1fr;
-    }
-
-    .carousel__track .featured-card:not(.featured-card--active),
-    .carousel__track .featured-skeleton:not(:nth-child(2)) {
-      display: none;
-    }
-
-    .catalogue__grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 16px;
-    }
   }
 </style>
