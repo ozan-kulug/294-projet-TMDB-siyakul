@@ -2,7 +2,9 @@
   <!-- Barre latérale étroite (rail) toujours visible, fournie par Vuetify -->
   <v-navigation-drawer permanent rail rail-width="64">
     <div class="d-flex flex-column align-center ga-2 py-3 fill-height">
-      <router-link class="sidebar__logo mb-3" title="Accueil" to="/">Logo</router-link>
+      <router-link class="mb-3" title="Accueil" to="/">
+        <v-img alt="Logo - retour à l'accueil" height="48" :src="logo" width="48" />
+      </router-link>
 
       <v-btn
         color="primary"
@@ -29,6 +31,7 @@
 
 <script setup>
   import { useRouter } from 'vue-router'
+  import logo from '@/assets/logo.webp'
   import { useMovieStore } from '@/stores/movieStore'
 
   // Événement envoyé au parent quand on clique sur la loupe
@@ -47,18 +50,3 @@
     }
   }
 </script>
-
-<style scoped>
-  /* Logo ovale (pas d'équivalent direct dans Vuetify) */
-  .sidebar__logo {
-    display: grid;
-    place-items: center;
-    width: 48px;
-    height: 32px;
-    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    border-radius: 50%;
-    font-size: 0.8rem;
-    color: inherit;
-    text-decoration: none;
-  }
-</style>

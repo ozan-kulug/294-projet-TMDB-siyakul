@@ -2,7 +2,13 @@
   <v-container class="pa-4 pa-sm-6" fluid>
     <!-- En-tête -->
     <div class="d-flex justify-end align-center ga-2">
-      <v-chip variant="outlined">Logo</v-chip>
+      <v-img
+        alt="Logo"
+        class="flex-grow-0"
+        height="48"
+        :src="logo"
+        width="48"
+      />
       <v-btn icon="mdi-heart-outline" size="large" title="Favoris" variant="text" />
     </div>
 
@@ -179,6 +185,7 @@
 <script setup>
   import { storeToRefs } from 'pinia'
   import { computed, ref } from 'vue'
+  import logo from '@/assets/logo.webp'
   import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
 
