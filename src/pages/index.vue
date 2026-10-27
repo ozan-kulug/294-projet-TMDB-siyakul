@@ -14,10 +14,9 @@
 
     <!-- Introduction -->
     <v-sheet class="mb-8" color="transparent" max-width="520">
-      <h1 class="text-h4 font-weight-bold mb-2">Heading</h1>
+      <h1 class="text-h4 font-weight-bold mb-2">Cinéclap</h1>
       <p class="text-body-1 text-medium-emphasis">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor
-        incididunt ut labore et dolore magna aliqua.
+        Découvrez les films du moment, comparez leurs notes et trouvez votre prochaine séance.
       </p>
     </v-sheet>
 

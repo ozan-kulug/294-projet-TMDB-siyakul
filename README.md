@@ -1,4 +1,4 @@
-# 🌐 Mon Projet Vue.js & Vuetify
+# 🎬 Cinéclap
 
 ## 1. 🎨 Présentation du projet
 
