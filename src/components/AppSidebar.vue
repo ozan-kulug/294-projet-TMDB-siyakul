@@ -13,7 +13,6 @@
         variant="text"
         @click="allerALaRecherche"
       />
-      <v-btn color="primary" icon="mdi-menu" title="Menu" variant="text" />
       <v-btn
         :disabled="movieStore.isLoading"
         icon="mdi-dice-5-outline"
