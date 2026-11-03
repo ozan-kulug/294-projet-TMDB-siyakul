@@ -29,12 +29,12 @@
     <!-- .stop.prevent : le clic ne doit pas ouvrir la page du film (la carte est un lien) -->
     <v-btn
       class="ma-2"
-      :color="movieStore.isFavorite(movie) ? 'red' : 'white'"
+      :color="estFavori ? 'red' : 'white'"
       density="comfortable"
-      :icon="movieStore.isFavorite(movie) ? 'mdi-heart' : 'mdi-heart-outline'"
+      :icon="estFavori ? 'mdi-heart' : 'mdi-heart-outline'"
       location="top end"
       position="absolute"
-      :title="movieStore.isFavorite(movie) ? 'Retirer des favoris' : 'Ajouter aux favoris'"
+      :title="estFavori ? 'Retirer des favoris' : 'Ajouter aux favoris'"
       variant="text"
       @click.stop.prevent="changerFavori"
     />
@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-  import { ref } from 'vue'
+  import { computed, ref } from 'vue'
   import { useMovieStore } from '@/stores/movieStore'
 
   const props = defineProps({
@@ -59,6 +59,9 @@
 
   const movieStore = useMovieStore()
 
+  // Le film est-il dans les favoris ? (calculé une seule fois pour le cœur)
+  const estFavori = computed(() => movieStore.isFavorite(props.movie))
+
   // Snackbar affiché après un clic sur le cœur
   const afficherMessage = ref(false)
   const message = ref('')
@@ -67,7 +70,7 @@
    * Ajoute ou retire le film des favoris et affiche un message de confirmation
    */
   function changerFavori () {
-    const etaitFavori = movieStore.isFavorite(props.movie)
+    const etaitFavori = estFavori.value
     movieStore.toggleFavorite(props.movie)
     message.value = etaitFavori ? 'Retiré des favoris' : 'Ajouté aux favoris'
     afficherMessage.value = true
