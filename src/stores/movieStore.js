@@ -14,12 +14,17 @@ const IMAGES_URL = import.meta.env.VITE_IMAGES_URL || 'https://apis.divtec.me'
 // Nombre maximum de films par requête autorisé par l'API
 const LIMIT = 100
 
+// Clé utilisée pour enregistrer les favoris dans le localStorage
+const FAVORITES_KEY = 'cineclap_favorites'
+
 export const useMovieStore = defineStore('movie', {
   state: () => ({
     movies: [],
     genres: [],
     isLoading: false,
     error: null,
+    // Ids des films favoris (pas les objets complets)
+    favorites: [],
   }),
 
   getters: {
@@ -60,6 +65,23 @@ export const useMovieStore = defineStore('movie', {
         return state.movies[index]
       }
     },
+
+    // Nombre de favoris
+    totalFavorites: state => state.favorites.length,
+
+    // Savoir si un film est dans les favoris
+    isFavorite: state => {
+      return movie => state.favorites.includes(movie.id)
+    },
+
+    // Films favoris complets, retrouvés à partir de leurs ids
+    getFavorites: state => {
+      const favoriteMovies = state.favorites.map(favoriteId => {
+        return state.movies.find(movie => movie.id === favoriteId)
+      })
+      // Un favori peut ne plus exister dans l'API : find() renvoie alors undefined
+      return favoriteMovies.filter(movie => movie !== undefined)
+    },
   },
 
   actions: {
@@ -86,6 +108,7 @@ export const useMovieStore = defineStore('movie', {
       }
 
       this.movies = movies
+      this.cleanupFavorites()
     },
 
     /**
@@ -102,6 +125,8 @@ export const useMovieStore = defineStore('movie', {
     async init () {
       this.isLoading = true
       this.error = null
+      // Les favoris sont chargés avant les films, pour que cleanupFavorites() puisse les nettoyer
+      this.loadFavorites()
       try {
         await Promise.all([
           this.fetchMovies(),
@@ -112,6 +137,62 @@ export const useMovieStore = defineStore('movie', {
         console.error(error)
       } finally {
         this.isLoading = false
+      }
+    },
+
+    /**
+     * Charge les favoris enregistrés dans le localStorage
+     */
+    loadFavorites () {
+      try {
+        const savedFavorites = localStorage.getItem(FAVORITES_KEY)
+        this.favorites = savedFavorites ? JSON.parse(savedFavorites) : []
+      } catch (error) {
+        console.error('Erreur lors du chargement des favoris :', error)
+        this.favorites = []
+      }
+    },
+
+    /**
+     * Enregistre les favoris dans le localStorage (en texte, avec JSON.stringify)
+     */
+    saveFavorites () {
+      try {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(this.favorites))
+      } catch (error) {
+        console.error('Erreur lors de la sauvegarde des favoris :', error)
+      }
+    },
+
+    /**
+     * Ajoute le film aux favoris, ou le retire s'il y est déjà
+     */
+    toggleFavorite (movie) {
+      const favoriteIndex = this.favorites.indexOf(movie.id)
+
+      if (favoriteIndex === -1) {
+        // Pas encore favori : on l'ajoute
+        this.favorites.push(movie.id)
+      } else {
+        // Déjà favori : on le retire
+        this.favorites.splice(favoriteIndex, 1)
+      }
+
+      this.saveFavorites()
+    },
+
+    /**
+     * Retire des favoris les films qui n'existent plus dans l'API
+     */
+    cleanupFavorites () {
+      const initialCount = this.favorites.length
+
+      this.favorites = this.favorites.filter(favoriteId => {
+        return this.movies.some(movie => movie.id === favoriteId)
+      })
+
+      if (this.favorites.length !== initialCount) {
+        this.saveFavorites()
       }
     },
   },
