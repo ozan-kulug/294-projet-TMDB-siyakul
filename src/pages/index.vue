@@ -112,7 +112,14 @@
           prepend-inner-icon="mdi-magnify"
           variant="outlined"
         />
-        <v-btn prepend-icon="mdi-dice-5-outline" variant="outlined">Au hasard</v-btn>
+        <v-btn
+          :disabled="isLoading"
+          prepend-icon="mdi-dice-5-outline"
+          variant="outlined"
+          @click="allerAuHasard"
+        >
+          Au hasard
+        </v-btn>
       </v-sheet>
 
       <!-- Un clic choisit un genre, un 2e clic sur le même genre l'enlève -->
@@ -194,6 +201,7 @@
 <script setup>
   import { storeToRefs } from 'pinia'
   import { computed, onMounted, ref, watch } from 'vue'
+  import { useRouter } from 'vue-router'
   import logo from '@/assets/logo.webp'
   import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
@@ -215,6 +223,18 @@
 
   // Store de l'interface (la loupe de la barre latérale demande le champ de recherche)
   const appStore = useAppStore()
+
+  const router = useRouter()
+
+  /**
+   * Ouvre la page d'un film choisi au hasard
+   */
+  function allerAuHasard () {
+    const film = movieStore.getRandomMovie()
+    if (film) {
+      router.push(`/movies/${film.id}`)
+    }
+  }
 
   // ----- Carrousel -----
 
