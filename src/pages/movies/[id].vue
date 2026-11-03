@@ -69,6 +69,17 @@
               </span>
             </div>
 
+            <!-- Bouton favori -->
+            <v-btn
+              class="mt-5"
+              :color="movieStore.isFavorite(movie) ? 'red' : undefined"
+              :prepend-icon="movieStore.isFavorite(movie) ? 'mdi-heart' : 'mdi-heart-outline'"
+              variant="tonal"
+              @click="changerFavori"
+            >
+              {{ movieStore.isFavorite(movie) ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
+            </v-btn>
+
             <!-- Fiche du film -->
             <v-row class="mt-5" dense tag="dl">
               <v-col cols="12">
@@ -132,12 +143,17 @@
         </v-row>
       </v-sheet>
     </div>
+
+    <!-- Message de confirmation après un clic sur le bouton favori -->
+    <v-snackbar v-model="afficherMessage" color="primary" :timeout="2000">
+      {{ message }}
+    </v-snackbar>
   </v-container>
 </template>
 
 <script setup>
   import { storeToRefs } from 'pinia'
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { useRoute } from 'vue-router'
   import { useMovieStore } from '@/stores/movieStore'
 
@@ -166,6 +182,20 @@
     const url = movieStore.getImageUrl(movie.value.backdropPath || movie.value.posterPath)
     return { backgroundImage: `url(${url})` }
   })
+
+  // Snackbar affiché après un clic sur le bouton favori
+  const afficherMessage = ref(false)
+  const message = ref('')
+
+  /**
+   * Ajoute ou retire le film des favoris et affiche un message de confirmation
+   */
+  function changerFavori () {
+    const etaitFavori = movieStore.isFavorite(movie.value)
+    movieStore.toggleFavorite(movie.value)
+    message.value = etaitFavori ? 'Retiré des favoris' : 'Ajouté aux favoris'
+    afficherMessage.value = true
+  }
 
   /**
    * Retourne le nom en français d'une langue à partir de son code
