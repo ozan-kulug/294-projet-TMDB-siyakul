@@ -12,7 +12,22 @@
         :src="logo"
         width="48"
       />
-      <v-btn icon="mdi-heart-outline" size="large" title="Favoris" variant="text" />
+      <!-- Lien vers les favoris, avec le nombre de favoris -->
+      <v-btn
+        icon
+        size="large"
+        title="Mes favoris"
+        to="/favoris"
+        variant="text"
+      >
+        <v-badge
+          color="red"
+          :content="movieStore.totalFavorites"
+          :model-value="movieStore.totalFavorites > 0"
+        >
+          <v-icon icon="mdi-heart-outline" />
+        </v-badge>
+      </v-btn>
     </div>
 
     <!-- Erreur de chargement -->
