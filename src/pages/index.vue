@@ -1,7 +1,10 @@
 <template>
   <v-container class="pa-4 pa-sm-6" fluid>
+    <!-- Titre de la page : invisible à l'écran, mais lu par les lecteurs d'écran -->
+    <h1 class="d-sr-only">Cinéclap</h1>
+
     <!-- En-tête -->
-    <div class="d-flex justify-end align-center ga-2">
+    <div class="d-flex justify-end align-center ga-2 mb-4">
       <v-img
         alt="Logo"
         class="flex-grow-0"
@@ -11,39 +14,6 @@
       />
       <v-btn icon="mdi-heart-outline" size="large" title="Favoris" variant="text" />
     </div>
-
-    <!-- Introduction -->
-    <v-sheet class="mb-8" color="transparent" max-width="520">
-      <h1 class="text-h4 font-weight-bold mb-2">Cinéclap</h1>
-      <p class="text-body-1 text-medium-emphasis">
-        Découvrez les films du moment, comparez leurs notes et trouvez votre prochaine séance.
-      </p>
-    </v-sheet>
-
-    <!-- Recherche et filtres -->
-    <section class="mb-8">
-      <v-sheet class="d-flex flex-wrap align-center ga-3 mb-3" color="transparent" max-width="560">
-        <!-- Champ en lecture seule : il sert uniquement à ouvrir la fenêtre de recherche -->
-        <v-text-field
-          class="search-field flex-grow-1"
-          density="compact"
-          hide-details
-          label="Rechercher"
-          min-width="220"
-          prepend-inner-icon="mdi-magnify"
-          readonly
-          variant="outlined"
-          @click="appStore.ouvrirRecherche()"
-          @keydown.enter="appStore.ouvrirRecherche()"
-        />
-        <v-btn prepend-icon="mdi-dice-5-outline" variant="outlined">Au hasard</v-btn>
-        <v-btn color="primary" icon="mdi-filter" title="Filtres" variant="text" />
-      </v-sheet>
-
-      <div class="d-flex flex-wrap ga-2">
-        <v-chip v-for="n in 5" :key="n" variant="outlined">Genre {{ n }}</v-chip>
-      </div>
-    </section>
 
     <!-- Erreur de chargement -->
     <v-alert
@@ -57,7 +27,7 @@
 
     <!-- Carrousel des films les plus populaires -->
     <!-- Flèches en colonnes « auto » (leur largeur), films dans la colonne du milieu (le reste) -->
-    <v-row align="center" class="mb-10" no-gutters>
+    <v-row align="center" class="mb-8" no-gutters>
       <v-col cols="auto">
         <v-btn
           :disabled="isLoading"
@@ -127,18 +97,58 @@
       </v-col>
     </v-row>
 
+    <!-- Recherche et filtre par genre -->
+    <section class="mb-8">
+      <v-sheet class="d-flex flex-wrap align-center ga-3 mb-3" color="transparent" max-width="560">
+        <v-text-field
+          ref="champRecherche"
+          v-model="recherche"
+          class="flex-grow-1"
+          clearable
+          density="compact"
+          hide-details
+          label="Rechercher un film"
+          min-width="220"
+          prepend-inner-icon="mdi-magnify"
+          variant="outlined"
+        />
+        <v-btn prepend-icon="mdi-dice-5-outline" variant="outlined">Au hasard</v-btn>
+      </v-sheet>
+
+      <!-- Un clic choisit un genre, un 2e clic sur le même genre l'enlève -->
+      <v-chip-group v-model="genreChoisi" color="primary" filter>
+        <v-chip
+          v-for="genre in genres"
+          :key="genre.sourceId"
+          :text="genre.name"
+          :value="genre.sourceId"
+          variant="outlined"
+        />
+      </v-chip-group>
+    </section>
+
     <!-- Catalogue (à gauche) + Top (à droite, en dessous sur petit écran) -->
     <v-row>
       <v-col cols="12" lg="9" md="8">
-        <v-select
-          class="mb-4"
-          density="compact"
-          hide-details
-          :items="['Popularité', 'Note', 'Date de sortie', 'Titre']"
-          label="Ordre"
-          max-width="220"
-          variant="outlined"
-        />
+        <!-- Tri -->
+        <div class="d-flex align-center ga-2 mb-4">
+          <v-select
+            v-model="ordre"
+            density="compact"
+            hide-details
+            :items="ORDRES"
+            label="Ordre"
+            max-width="220"
+            variant="outlined"
+          />
+          <v-btn
+            :icon="croissant ? 'mdi-sort-ascending' : 'mdi-sort-descending'"
+            :title="croissant ? 'Ordre croissant' : 'Ordre décroissant'"
+            variant="text"
+            @click="croissant = !croissant"
+          />
+          <span class="text-medium-emphasis">{{ filmsTries.length }} films</span>
+        </div>
 
         <v-row>
           <!-- Chargement : 6 cadres vides -->
@@ -159,7 +169,7 @@
           </v-col>
         </v-row>
 
-        <p v-if="!isLoading && !error && movies.length === 0" class="text-medium-emphasis">
+        <p v-if="!isLoading && !error && filmsTries.length === 0" class="text-medium-emphasis">
           Aucun film trouvé.
         </p>
 
@@ -183,7 +193,7 @@
 
 <script setup>
   import { storeToRefs } from 'pinia'
-  import { computed, ref } from 'vue'
+  import { computed, onMounted, ref, watch } from 'vue'
   import logo from '@/assets/logo.webp'
   import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
@@ -192,11 +202,18 @@
   const NOMBRE_FILMS_UNE = 5
   // Nombre de films par page du catalogue
   const FILMS_PAR_PAGE = 24
+  // Choix du menu « Ordre »
+  const ORDRES = [
+    { title: 'Popularité', value: 'popularite' },
+    { title: 'Note', value: 'note' },
+    { title: 'Date de sortie', value: 'date' },
+    { title: 'Titre', value: 'titre' },
+  ]
 
   const movieStore = useMovieStore()
-  const { movies, moviesByPopularity, isLoading, error } = storeToRefs(movieStore)
+  const { movies, genres, moviesByPopularity, isLoading, error } = storeToRefs(movieStore)
 
-  // Store de l'interface (pour ouvrir la fenêtre de recherche)
+  // Store de l'interface (la loupe de la barre latérale demande le champ de recherche)
   const appStore = useAppStore()
 
   // ----- Carrousel -----
@@ -247,18 +264,93 @@
     indexFilmCourant.value = (indexFilmCourant.value + 1) % filmsALaUne.value.length
   }
 
+  // ----- Recherche, filtre et tri -----
+  // Chaque computed part du précédent : films → genre → recherche → tri.
+  // Les films du store ne sont jamais modifiés.
+
+  const recherche = ref('')
+  const genreChoisi = ref(null)
+  const ordre = ref('popularite')
+  const croissant = ref(false)
+
+  // Champ de recherche (pour lui donner le focus)
+  const champRecherche = ref(null)
+
+  // 1. Films du genre choisi (tous les films si aucun genre)
+  const filmsParGenre = computed(() => {
+    if (!genreChoisi.value) {
+      return movies.value
+    }
+    return movies.value.filter(film => (film.genreIds || []).includes(genreChoisi.value))
+  })
+
+  // 2. Films dont le titre contient le texte recherché (sans tenir compte des majuscules)
+  const filmsRecherches = computed(() => {
+    const texte = (recherche.value || '').trim().toLowerCase()
+    if (texte === '') {
+      return filmsParGenre.value
+    }
+    return filmsParGenre.value.filter(film => film.title.toLowerCase().includes(texte))
+  })
+
+  // 3. Films triés selon l'ordre choisi
+  const filmsTries = computed(() => {
+    const sens = croissant.value ? 1 : -1
+    return filmsRecherches.value.toSorted((a, b) => {
+      switch (ordre.value) {
+        case 'note': {
+          return (a.voteAverage - b.voteAverage) * sens
+        }
+        case 'date': {
+          return (a.releaseDate || '').localeCompare(b.releaseDate || '') * sens
+        }
+        case 'titre': {
+          return a.title.localeCompare(b.title, 'fr') * sens
+        }
+        default: {
+          return (a.popularity - b.popularity) * sens
+        }
+      }
+    })
+  })
+
+  // Les titres se lisent de A à Z, les autres ordres du plus grand au plus petit
+  watch(ordre, nouvelOrdre => {
+    croissant.value = nouvelOrdre === 'titre'
+  })
+
+  // Quand la recherche, le genre ou l'ordre change, on revient à la 1re page
+  watch([recherche, genreChoisi, ordre, croissant], () => {
+    page.value = 1
+  })
+
+  /**
+   * Donne le focus au champ de recherche si la loupe de la barre latérale l'a demandé
+   */
+  function focusRecherche () {
+    if (appStore.rechercheDemandee) {
+      champRecherche.value.focus()
+      appStore.terminerRecherche()
+    }
+  }
+
+  // Loupe cliquée depuis une autre page (l'accueil vient de s'afficher)
+  onMounted(focusRecherche)
+  // Loupe cliquée alors qu'on est déjà sur l'accueil
+  watch(() => appStore.rechercheDemandee, focusRecherche)
+
   // ----- Catalogue et pagination -----
 
   const page = ref(1)
 
-  const nombrePages = computed(() => Math.ceil(movies.value.length / FILMS_PAR_PAGE))
+  const nombrePages = computed(() => Math.ceil(filmsTries.value.length / FILMS_PAR_PAGE))
 
   // Films de la page actuelle
   const filmsDeLaPage = computed(() => {
     const debut = (page.value - 1) * FILMS_PAR_PAGE
     const fin = debut + FILMS_PAR_PAGE
     const films = []
-    for (const [index, film] of movies.value.entries()) {
+    for (const [index, film] of filmsTries.value.entries()) {
       if (index >= debut && index < fin) {
         films.push(film)
       }
@@ -266,10 +358,3 @@
     return films
   })
 </script>
-
-<style scoped>
-  /* Le champ de recherche est en lecture seule : on affiche quand même la main au survol */
-  .search-field :deep(input) {
-    cursor: pointer;
-  }
-</style>
