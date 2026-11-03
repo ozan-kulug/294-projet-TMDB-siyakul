@@ -72,12 +72,12 @@
             <!-- Bouton favori -->
             <v-btn
               class="mt-5"
-              :color="movieStore.isFavorite(movie) ? 'red' : undefined"
-              :prepend-icon="movieStore.isFavorite(movie) ? 'mdi-heart' : 'mdi-heart-outline'"
+              :color="estFavori ? 'red' : undefined"
+              :prepend-icon="estFavori ? 'mdi-heart' : 'mdi-heart-outline'"
               variant="tonal"
               @click="changerFavori"
             >
-              {{ movieStore.isFavorite(movie) ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
+              {{ estFavori ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
             </v-btn>
 
             <!-- Fiche du film -->
@@ -164,6 +164,9 @@
   // Film correspondant à l'id de l'URL (ex. /movies/25 → id = '25', converti en nombre)
   const movie = computed(() => movieStore.getMovieById(Number(route.params.id)))
 
+  // Le film est-il dans les favoris ? (calculé une seule fois pour le bouton)
+  const estFavori = computed(() => movieStore.isFavorite(movie.value))
+
   // Noms des genres du film
   const genres = computed(() => movieStore.getGenreNames(movie.value))
 
@@ -191,7 +194,7 @@
    * Ajoute ou retire le film des favoris et affiche un message de confirmation
    */
   function changerFavori () {
-    const etaitFavori = movieStore.isFavorite(movie.value)
+    const etaitFavori = estFavori.value
     movieStore.toggleFavorite(movie.value)
     message.value = etaitFavori ? 'Retiré des favoris' : 'Ajouté aux favoris'
     afficherMessage.value = true
