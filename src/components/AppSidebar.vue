@@ -24,13 +24,20 @@
 
       <v-spacer />
 
-      <v-btn icon="mdi-cog-outline" title="Paramètres" variant="text" />
+      <!-- Mode sombre : soleil pour passer en clair / mode clair : lune pour passer en sombre -->
+      <v-btn
+        :icon="theme.current.value.dark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
+        :title="theme.current.value.dark ? 'Mode clair' : 'Mode sombre'"
+        variant="text"
+        @click="changerTheme"
+      />
     </div>
   </v-navigation-drawer>
 </template>
 
 <script setup>
   import { useRouter } from 'vue-router'
+  import { useTheme } from 'vuetify'
   import logo from '@/assets/logo.webp'
   import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
@@ -38,6 +45,14 @@
   const router = useRouter()
   const movieStore = useMovieStore()
   const appStore = useAppStore()
+  const theme = useTheme()
+
+  /**
+   * Passe du mode sombre au mode clair, et inversement
+   */
+  function changerTheme () {
+    theme.change(theme.current.value.dark ? 'light' : 'dark')
+  }
 
   /**
    * Va sur l'accueil et donne le focus au champ de recherche
