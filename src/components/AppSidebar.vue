@@ -11,7 +11,7 @@
         icon="mdi-magnify"
         title="Rechercher"
         variant="text"
-        @click="$emit('rechercher')"
+        @click="allerALaRecherche"
       />
       <v-btn color="primary" icon="mdi-menu" title="Menu" variant="text" />
       <v-btn
@@ -32,13 +32,20 @@
 <script setup>
   import { useRouter } from 'vue-router'
   import logo from '@/assets/logo.webp'
+  import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
-
-  // Événement envoyé au parent quand on clique sur la loupe
-  defineEmits(['rechercher'])
 
   const router = useRouter()
   const movieStore = useMovieStore()
+  const appStore = useAppStore()
+
+  /**
+   * Va sur l'accueil et donne le focus au champ de recherche
+   */
+  function allerALaRecherche () {
+    appStore.demanderRecherche()
+    router.push('/')
+  }
 
   /**
    * Ouvre la page d'un film choisi au hasard

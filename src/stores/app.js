@@ -2,29 +2,29 @@
  * stores/app.js
  *
  * Store de l'interface : état partagé entre le layout et les pages
- * (ex. la fenêtre de recherche ouverte depuis la barre latérale ou depuis l'accueil)
+ * (ex. la loupe de la barre latérale qui demande le champ de recherche de l'accueil)
  */
 
 import { defineStore } from 'pinia'
 
 export const useAppStore = defineStore('app', {
   state: () => ({
-    rechercheOuverte: false,
+    rechercheDemandee: false,
   }),
 
   actions: {
     /**
-     * Ouvre la fenêtre de recherche
+     * Demande à l'accueil de donner le focus au champ de recherche
      */
-    ouvrirRecherche () {
-      this.rechercheOuverte = true
+    demanderRecherche () {
+      this.rechercheDemandee = true
     },
 
     /**
-     * Ferme la fenêtre de recherche
+     * Le champ de recherche a reçu le focus : la demande est terminée
      */
-    fermerRecherche () {
-      this.rechercheOuverte = false
+    terminerRecherche () {
+      this.rechercheDemandee = false
     },
   },
 })
