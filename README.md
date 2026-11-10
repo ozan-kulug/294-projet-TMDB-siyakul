@@ -3,9 +3,9 @@
 ## 1. 🎨 Présentation du projet
 
 ### Concept
-- **API choisie** : API TMDB (The Movie Database) : Je suis un grand fan de cinéma, je regarde un film presque chaque jour. Le sujet m'a donc tout de suite parlé.
-- **Public cible** : Mon public cible, ce sont les personnes qui, comme moi, aiment regarder des films mais qui ont du mal à se décider.
-- **Objectifs** : Le but de l’application est de découvrir les films récents, de comparer les notes et de pouvoir choisir un film au hasard, sans le stress du choix.
+- **API choisie** : API TMDB (The Movie Database) : je suis un grand fan de cinéma, je regarde un film presque chaque jour. Le sujet m'a donc tout de suite parlé.
+- **Public cible** : mon public cible, ce sont les personnes qui, comme moi, aiment regarder des films mais qui ont du mal à se décider.
+- **Objectifs** : le but de l’application est de découvrir les films récents, de comparer les notes et de pouvoir choisir un film au hasard, sans le stress du choix.
 
 ### Fonctionnalités principales
 - **Liste des films** : un carrousel avec les 5 films les plus populaires et un catalogue de 198 films avec pagination (24 films par page).
@@ -47,7 +47,7 @@
 - [API TMDB de l'école (DIVTEC)](https://apis.divtec.me/api/tmdb-api/docs) : documentation de l'API (Swagger)
 
 #### Progression
-- **Semaine 1 (22.09)** : création du projet. Après la validation de l'API, j'ai défini les pages du site et préparé la maquette principale avec draw.io
+- **Semaine 1 (22.09)** : création du projet. Après la validation de l'API, j'ai défini les pages du site et préparé la maquette principale avec draw.io.
 - **Semaine 2 (12.10 – 18.10)** : page d'accueil avec les films de l'API, Top 10 / 50 / 100, pagination du catalogue et page de détail d'un film (image de fond, langue, classement, étoiles).
 - **Semaine 3 (19.10 – 25.10)** : mise en place du store Pinia et d'Axios avec un fichier `.env`, code repris pour n'utiliser que ce qui a été vu en cours, bouton « film au hasard » et mise en ligne sur Vercel.
 - **Semaine 4 (26.10 – 01.11)** : remplacement de la plupart du CSS par des composants Vuetify (barre latérale, Top 10, cartes, grille), ajout du logo, du nom « Cinéclap », d'un footer avec un slot et d'une page 404.
@@ -67,12 +67,12 @@
 
 ### Installation & Run
 - **Prérequis** : Node.js (version 18 ou plus) et npm
--  **Cloner le repo** :
+- **Cloner le repo** :
   ```bash
   git clone https://github.com/ozan-kulug/294-projet-TMDB-siyakul.git
   cd 294-projet-TMDB-siyakul
   ```
--  **Installer** :
+- **Installer** :
   ```bash
   npm install
   ```
@@ -80,14 +80,12 @@
   ```bash
   cp .env.example .env
   ```
-(sous Windows : `copy .env.example .env`)
-
+  (sous Windows : `copy .env.example .env`)
 - **Lancer** :
   ```bash
   npm run dev
   ```
   Le site s'ouvre sur http://localhost:3000
-- Variables d’environnement : copier `.env.example` → `.env` et compléter les clés nécessaires
 
 ### Méthodologie
 - **Découpage en composants réutilisables** : `MovieCard` est utilisé sur l'accueil et sur la page des favoris ; `TopMovies`, `AppSidebar` et `AppFooter` sont des composants séparés.
@@ -98,8 +96,8 @@
 - **Code basé sur le cours** : j'ai utilisé seulement ce qui a été vu en cours (devjs.ch) et j'ai suivi l'exercice Pokédex Vuetify pour le store, la recherche et les favoris.
 
 ### Choix techniques
-- API sélectionnée : [API TMDB de l'école](https://apis.divtec.me/api/tmdb-api/docs)
-- Justification du choix : le cinéma est ma passion, l'API contient des films récents avec affiches, images de fond, notes, popularité, genres et résumés, ce qui suffit pour une liste, une page détail, une recherche, des filtres et des tris. Aucune clé API n'est nécessaire pour lire les données.
+- **API sélectionnée** : [API TMDB de l'école](https://apis.divtec.me/api/tmdb-api/docs)
+- **Justification du choix** : le cinéma est ma passion, l'API contient des films récents avec affiches, images de fond, notes, popularité, genres et résumés, ce qui suffit pour une liste, une page détail, une recherche, des filtres et des tris. Aucune clé API n'est nécessaire pour lire les données.
 - **Endpoints utilisés** :
     - `GET /movies?limit=100&page=N` : liste des films (toutes les pages sont chargées au démarrage)
     - `GET /genres?limit=100` : liste des genres
@@ -107,7 +105,7 @@
 - **Limites / quotas connus** :
     - seulement 198 films et 19 genres ;
     - à partir du film n°105, il n'y a plus d'affiche : l'image de fond est utilisée à la place ;
-    - pas d'informations sur les acteurs ;
+    - pas d'informations sur les acteurs.
 
 ### Architecture (Descriptif + schéma simple + data-flow)
 - `App.vue` : composant racine, lance le chargement des données (`movieStore.init()`) au démarrage.
@@ -167,12 +165,13 @@ Outils utilisés : draw.io pour la maquette du site.
 - ✅ Navigation clavier possible : tous les boutons, liens et champs sont accessibles avec la touche Tab
 - ✅ Focus visible : l'élément sélectionné au clavier est mis en évidence
 - ✅ Titre `<h1>` sur chaque page (sur l'accueil il est caché à l'écran mais lu par les lecteurs d'écran)
--
+
 ### Tests d'erreurs & fallback
 - ✅ API down → message d'erreur (`v-alert`) au lieu d'une page vide. Pas de mock : il n'est pas obligatoire pour l'année 26-27.
 - ✅ Liste vide → message clair affiché (ex. « Vous n'avez pas encore de favoris »)
 - ✅ Recherche sans résultat → affichage « Aucun film trouvé »
 - ✅ Film inexistant (`/movies/99999`) → message « Film introuvable »
+
 ---
 
 ## 5. 🤖 Usage d’intelligence artificielle
@@ -188,40 +187,42 @@ Outils utilisés : draw.io pour la maquette du site.
 - Génération de snippets Vue/Vuetify : 80%
 - Aide à la structuration du projet : 50%
 - Debugging : 50%
-- Recherche d’idées : 0%
+- Recherche d’idées : 5%
 
 **Compréhension et adaptation**
-- **Expliquer ce que fait le code généré** : 
-  - Le code a plutôt été écrit par l'IA;
+- **Expliquer ce que fait le code généré** :
+  - le code a plutôt été écrit par l'IA ;
   - le store Pinia charge les films une seule fois (toutes les pages en parallèle avec `Promise.all`) et les partage entre les pages ;
   - la recherche utilise des `computed` chaînés (genre → titre → tri) sans modifier les données du store ;
   - les favoris sont des ids enregistrés dans le localStorage (`JSON.stringify` / `JSON.parse`) ;
   - `@click.stop.prevent` empêche d'ouvrir la page du film quand on clique sur le cœur.
-- **Dire comment il a été adapté au projet**
-  - j'ai demandé de n'utiliser que ce qui a été vu en cours
-  - j'ai refusé certaines propositions : une autre API pour les acteurs (je voulais rester sur l'API de l'école) et une vérification des dates de sortie
-  - j'ai changé la mise en page selon les retours de l'enseignant et supprimé les boutons inutiles
-  - j'ai verifier les bout de code et refuser les codes qu'on n'a pas vus.
+- **Dire comment il a été adapté au projet** :
+  - j'ai demandé de n'utiliser que ce qui a été vu en cours ;
+  - j'ai refusé certaines propositions : une autre API pour les acteurs (je voulais rester sur l'API de l'école) et une vérification des dates de sortie ;
+  - j'ai changé la mise en page selon les retours de l'enseignant et supprimé les boutons inutiles ;
+  - j'ai vérifié les bouts de code et refusé le code qui utilisait des notions pas vues en cours ;
   - j'ai écrit moi-même quelques parties du code et ajouté le fichier `vercel.json`.
-    **Ce que l'IA a fait / ce que j'ai fait**
+
+**Ce que l'IA a fait / ce que j'ai fait**
 
 | Partie | IA                                                   | Moi                                                                                                                             |
 |---|------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
 | `stores/movieStore.js` (films, genres, favoris) | Code écrit par l'IA                                  | Choix des fonctionnalités, tests                                                                                                |
 | `pages/index.vue` (carrousel, recherche, tri, pagination) | Code écrit par l'IA                                  | Mise en page selon les retours de l'enseignant, écran de chargement (`v-skeleton-loader`), pagination sur mobile (`useDisplay`) |
-| `pages/movies/[id].vue`, `favoris.vue`, page 404 | Code écrit par l'IA(`pages/movies/[id].vue`) | Choix des informations à afficher, code des pages `favoris.vue`, page 404                                                       |
+| `pages/movies/[id].vue`, `favoris.vue`, page 404 | Code écrit par l'IA (`pages/movies/[id].vue`) | Choix des informations à afficher, code de la page `favoris.vue` et de la page 404                                              |
 | Composants (`MovieCard`, `TopMovies`, `AppSidebar`, `AppFooter`) | Code écrit par l'IA                                  | Début du bouton « film au hasard », suppression des boutons inutiles                                                            |
 | Passage du CSS à Vuetify | Proposé et écrit par l'IA                            | Validation de chaque étape                                                                                                      |
 | `vercel.json`, nettoyage des fichiers | –                                                    | Fait par moi                                                                                                                    |
 | Maquette (draw.io), idée du site | –                                                    | Fait par moi                                                                                                                    |
 | Logo | Généré par Gemini                                    | Idée et choix du logo                                                                                                           |
-| README | Traduction en Français                               | Rédaction, corrections et captures d'écran                                                                                      |
+| README | Traduction en français                               | Rédaction, corrections et captures d'écran                                                                                      |
 
 ### Parties codées manuellement
 - Composants principaux : 20% personnel
 - Store & persistance : 15% personnel
 - Routing & navigation : 20% personnel
 - Tests & validation : 90% personnel
+
 ### Apprentissage personnel
 - **Ce que j'ai appris grâce à l'IA** :
     - comprendre mon propre code avec des explications sur mon projet : `ref` / `computed` / `watch`, le store Pinia avec `storeToRefs`, le modulo du carrousel, `@click.stop.prevent` ;
@@ -231,6 +232,7 @@ Outils utilisés : draw.io pour la maquette du site.
     - j'ai pu poser des questions à chaque étape et avoir une réponse tout de suite ;
     - j'ai appris à ne pas tout accepter : vérifier ce qu'elle propose, refuser ce qui ne correspond pas au projet ou au cours ;
     - elle m'a fait gagner du temps sur le code, ce qui m'a permis de me concentrer sur les idées, le design et les tests.
+
 ---
 
 ## 6. 🎯 Bilan personnel
