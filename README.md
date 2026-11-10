@@ -59,10 +59,11 @@
 ## 3. 🛠️ Outils et méthodologie
 
 ### Environnement de développement
-- **IDE** : VS Code / WebStorm / Autre
-- **Versioning** : Git + GitHub
-- **Dépendances principales** : Vue 3, Vuetify 3, Pinia, Axios/Fetch
-- **Gestion API Keys** : `.env` + `.env.example`
+- **IDE** : WebStorm
+- **Versioning** : GitHub
+- **Hébergement** : Vercel
+- **Dépendances principales** : Vue 3.5, Vuetify 3.10, Pinia 3, Vue Router 4, Axios 1.12, Vite 6
+- **Gestion API Keys** : l'API de l'école ne demande pas de clé. Le fichier `.env` contient seulement les adresses de l'API et des images (`VITE_API_URL`, `VITE_IMAGES_URL`). Le fichier `.env.example` sert de modèle et le `.env` n'est pas envoyé sur GitHub (`.gitignore`).
 
 ### Installation & Run
 - Cloner le repo :...
