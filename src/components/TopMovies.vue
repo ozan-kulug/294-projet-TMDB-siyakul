@@ -97,9 +97,4 @@
       position: static;
     }
   }
-
-  /* Image de fond utilisée à la place d'une affiche manquante (voir MovieCard.vue) */
-  .is-backdrop :deep(.v-img__img) {
-    transform: scale(1.78);
-  }
 </style>

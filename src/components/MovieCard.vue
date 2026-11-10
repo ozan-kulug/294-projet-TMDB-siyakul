@@ -76,11 +76,3 @@
     afficherMessage.value = true
   }
 </script>
-
-<style scoped>
-  /* Image de fond utilisée à la place d'une affiche manquante : elle est carrée avec des
-     bandes noires en haut et en bas, on zoome pour ne garder que l'image (16:9) */
-  .is-backdrop :deep(.v-img__img) {
-    transform: scale(1.78);
-  }
-</style>
