@@ -1,5 +1,12 @@
 # 🎬 Cinéclap
 
+Application Vue 3 + Vuetify pour découvrir les films du moment, comparer leurs notes et choisir un film au hasard.
+
+🔗 **Site en ligne** : https://294-projet-tmdb-siyakul.vercel.app
+
+**Sommaire** : [1. Présentation](#presentation) · [2. Parcours](#parcours) · [3. Outils](#outils) · [4. Tests](#tests) · [5. IA](#ia) · [6. Bilan](#bilan) · [7. Références](#references)
+
+<a id="presentation"></a>
 ## 1. 🎨 Présentation du projet
 
 ### Concept
@@ -18,20 +25,15 @@
 - **Persistance locale** : les favoris sont enregistrés dans le localStorage et restent après un rechargement de la page.
 
 ### Aperçu visuel
-**Page d'accueil (mode sombre)**
-![Page d'accueil en mode sombre](img/accueil.webp)
-
-**Page d'accueil (mode clair)**
-![Page d'accueil en mode clair](img/accueil-clair.webp)
-
-**Page d'un film**
-![Page du film Spider-Man: Brand New Day](img/film.png)
-
-**Mes favoris**
-![Page des favoris](img/favoris.png)
+| Page d'accueil (mode sombre) | Page d'accueil (mode clair) |
+|---|---|
+| ![Page d'accueil en mode sombre](img/accueil.webp) | ![Page d'accueil en mode clair](img/accueil-clair.webp) |
+| **Page d'un film** | **Mes favoris** |
+| ![Page du film Spider-Man: Brand New Day](img/film.png) | ![Page des favoris](img/favoris.png) |
 
 ---
 
+<a id="parcours"></a>
 ## 2. 📚 Parcours d'apprentissage
 
 ### Ressources utilisées
@@ -56,6 +58,7 @@
 
 ---
 
+<a id="outils"></a>
 ## 3. 🛠️ Outils et méthodologie
 
 ### Environnement de développement
@@ -142,6 +145,7 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ---
 
+<a id="tests"></a>
 ## 4. 🧪 Tests et validation
 
 ### Tests techniques
@@ -174,6 +178,7 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ---
 
+<a id="ia"></a>
 ## 5. 🤖 Usage d’intelligence artificielle
 
 ### IA utilisée
@@ -235,6 +240,7 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ---
 
+<a id="bilan"></a>
 ## 6. 🎯 Bilan personnel
 
 ### Ce que j'ai appris
@@ -282,6 +288,7 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ---
 
+<a id="references"></a>
 ## 7. 📚 Références & Sources
 - **Documentation de l'API** : [API TMDB de l'école (DIVTEC)](https://apis.divtec.me/api/tmdb-api/docs) – données issues de [The Movie Database (TMDB)](https://www.themoviedb.org/), usage pédagogique
 - **Tutos clés utilisés** :
