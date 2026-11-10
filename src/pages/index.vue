@@ -56,7 +56,7 @@
               cols="12"
               sm="4"
             >
-              <v-responsive :aspect-ratio="16 / 9" class="rounded-lg bg-surface-light" />
+              <v-skeleton-loader class="rounded-lg" type="image" />
             </v-col>
           </template>
 
@@ -167,8 +167,14 @@
         <v-row>
           <!-- Chargement : 6 cadres vides -->
           <template v-if="isLoading">
+            <v-col cols="12">
+              <p class="text-medium-emphasis">
+                <v-progress-circular class="mr-2" indeterminate size="20" width="2" />
+                Chargement des films…
+              </p>
+            </v-col>
             <v-col v-for="n in 6" :key="n" cols="6" sm="4">
-              <v-responsive :aspect-ratio="2 / 3" class="rounded-lg bg-surface-light" />
+              <v-skeleton-loader class="rounded-lg" type="card" />
             </v-col>
           </template>
 
