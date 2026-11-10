@@ -246,9 +246,13 @@ Outils utilisés : draw.io pour la maquette du site.
     - le modulo (`%`) pour faire tourner le carrousel en boucle.
 
 ### Difficultés rencontrées
-- Problèmes techniques et solutions trouvées
-- Moments de blocage et dépassement
-- Aide reçue et sources
+- **Problèmes techniques et solutions trouvées** :
+    - après le 105e film, l'API ne donne plus d'affiche → j'utilise l'image de fond avec un zoom pour cacher les bandes noires ;
+    - le site s'affichait vide après une modification du bouton « film au hasard » → il manquait le code JavaScript dans le composant.
+- **Moments de blocage et dépassement** :
+    - je voulais afficher les acteurs des films, mais l'API n'a pas ces données. J'ai décidé de ne pas utiliser une autre API et de rester sur celle de l'école ;
+    - la recherche s'ouvrait dans une fenêtre séparée. Après les retours de l'enseignant, je l'ai remplacée par une vraie recherche sur l'accueil.
+- **Aide reçue et sources** : retours de l'enseignant pendant les points de suivi, cours devjs.ch (Bases de Vue.js, exercice Pokédex Vuetify), documentation Vue / Vuetify / Pinia et IA (voir partie 5).
 
 ### Réussites et fiertés
 - Aspects du projet dont je suis fier
