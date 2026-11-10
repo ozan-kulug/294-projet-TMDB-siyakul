@@ -98,19 +98,49 @@
 - **Code basé sur le cours** : j'ai utilisé seulement ce qui a été vu en cours (devjs.ch) et j'ai suivi l'exercice Pokédex Vuetify pour le store, la recherche et les favoris.
 
 ### Choix techniques
-- API sélectionnée :  
-- Justification du choix :  
-- Endpoints utilisés :  
-- Limites/quotas connus :  
+- API sélectionnée : [API TMDB de l'école](https://apis.divtec.me/api/tmdb-api/docs)
+- Justification du choix : le cinéma est ma passion, l'API contient des films récents avec affiches, images de fond, notes, popularité, genres et résumés, ce qui suffit pour une liste, une page détail, une recherche, des filtres et des tris. Aucune clé API n'est nécessaire pour lire les données.
+- **Endpoints utilisés** :
+    - `GET /movies?limit=100&page=N` : liste des films (toutes les pages sont chargées au démarrage)
+    - `GET /genres?limit=100` : liste des genres
+    - Images : `https://apis.divtec.me` + `posterPath` / `backdropPath`  
+- **Limites / quotas connus** :
+  - seulement 198 films et 19 genres ;
+  - à partir du film n°105, il n'y a plus d'affiche : l'image de fond est utilisée à la place ;
+  - pas d'informations sur les acteurs ;
 
 ### Architecture (Descriptif + schéma simple + data-flow)
-- `App.vue` : layout principal  
-- `views/` : pages (liste, détail, favoris)  
-- ...
-Outils utiles : Figma / Draw.io / ...
+- `App.vue` : composant racine, lance le chargement des données (`movieStore.init()`) au démarrage.
+- `layouts/default.vue` : mise en page commune à toutes les pages (barre latérale, contenu, footer).
+- `pages/` : une page = une route (routing automatique)
+    - `index.vue` → `/` : carrousel, recherche, filtres, tri, catalogue et Top
+    - `movies/[id].vue` → `/movies/:id` : page détail d'un film
+    - `favoris.vue` → `/favoris` : films favoris
+    - `[...path].vue` → toutes les autres adresses : page 404
+- `components/` : `AppSidebar`, `AppFooter` (slot), `MovieCard` (props), `TopMovies`
+- `stores/` : `movieStore.js` (films, genres, favoris, chargement, erreurs) et `app.js` (interface)
+- `plugins/axios.js` : instance Axios avec l'adresse de l'API (lue dans `.env`)
 
-**Data-flow résumé :**  
-- Vue déclenche un **event utilisateur** → composant appelle une fonction du **store** → ...
+**Schéma :**
+```mermaid
+flowchart LR
+    API[(API TMDB DIVTEC)] -->|Axios| Store[movieStore<br>films, genres, favoris]
+    LS[(localStorage)] <-->|favoris| Store
+    Store --> Accueil[index.vue]
+    Store --> Detail["movies/[id].vue"]
+    Store --> Favoris[favoris.vue]
+    Store --> Top[TopMovies]
+    Accueil --> Card[MovieCard]
+    Favoris --> Card
+```
+
+**Data-flow résumé :**
+- Au démarrage, `App.vue` appelle `movieStore.init()` → le store charge les favoris (localStorage), puis les films et les genres avec Axios.
+- Les pages lisent les données du store (`storeToRefs`, getters) et les affichent.
+- Recherche : l'utilisateur tape dans le champ (`v-model`) → les `computed` filtrent par genre, par titre puis trient → le catalogue se met à jour. Les données du store ne sont jamais modifiées.
+- Favoris : clic sur ♥ dans `MovieCard` → `movieStore.toggleFavorite()` → le state change et est enregistré dans le localStorage → le cœur, le badge et la page des favoris se mettent à jour automatiquement.
+
+Outils utilisés : draw.io pour la maquette du site. 
 
 ---
 
