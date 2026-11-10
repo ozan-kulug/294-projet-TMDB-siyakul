@@ -200,59 +200,31 @@
     afficherMessage.value = true
   }
 
+  // Nom en français de chaque code de langue
+  const LANGUES = {
+    en: 'Anglais',
+    fr: 'Français',
+    es: 'Espagnol',
+    de: 'Allemand',
+    ja: 'Japonais',
+    ko: 'Coréen',
+    zh: 'Chinois',
+    hi: 'Hindi',
+    ta: 'Tamoul',
+    te: 'Télougou',
+    id: 'Indonésien',
+    tl: 'Tagalog',
+    tr: 'Turc',
+    ru: 'Russe',
+  }
+
   /**
    * Retourne le nom en français d'une langue à partir de son code
    * @param {string} code - code de la langue (ex. « en »)
-   * @return {string} nom de la langue (ex. « Anglais »)
+   * @return {string} nom de la langue (ex. « Anglais »), ou le code en majuscules s'il n'est pas dans la liste
    */
   function nomDeLangue (code) {
-    switch (code) {
-      case 'en': {
-        return 'Anglais'
-      }
-      case 'fr': {
-        return 'Français'
-      }
-      case 'es': {
-        return 'Espagnol'
-      }
-      case 'de': {
-        return 'Allemand'
-      }
-      case 'ja': {
-        return 'Japonais'
-      }
-      case 'ko': {
-        return 'Coréen'
-      }
-      case 'zh': {
-        return 'Chinois'
-      }
-      case 'hi': {
-        return 'Hindi'
-      }
-      case 'ta': {
-        return 'Tamoul'
-      }
-      case 'te': {
-        return 'Télougou'
-      }
-      case 'id': {
-        return 'Indonésien'
-      }
-      case 'tl': {
-        return 'Tagalog'
-      }
-      case 'tr': {
-        return 'Turc'
-      }
-      case 'ru': {
-        return 'Russe'
-      }
-      default: {
-        return code ? code.toUpperCase() : 'Inconnue'
-      }
-    }
+    return LANGUES[code] || (code ? code.toUpperCase() : 'Inconnue')
   }
 
   /**
