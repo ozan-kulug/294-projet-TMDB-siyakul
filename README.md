@@ -3,20 +3,32 @@
 ## 1. 🎨 Présentation du projet
 
 ### Concept
-- API choisie et pourquoi  
-- Public cible  
-- Objectifs de l’application  
+- **API choisie** : API TMDB (The Movie Database) : Je suis un grand fan de cinéma, je regarde un film presque chaque jour. Le sujet m'a donc tout de suite parlé.
+- **Public cible** : Mon public cible, ce sont les personnes qui, comme moi, aiment regarder des films mais qui ont du mal à se décider.  
+- **Objectifs** : Le but de l’application est de découvrir les films récents, de comparer les notes et de pouvoir choisir un film au hasard, sans le stress du choix.  
 
 ### Fonctionnalités principales
-- Affichage d’une liste d’éléments (via API)
-- Recherche / Tri / Filtres
-- Vue détail
-- Fonctionnalité interactive (favoris, watchlist, paramètres…)
-- Persistance locale (favoris ou préférences)
+- **Liste des films** : un carrousel avec les 5 films les plus populaires et un catalogue de 198 films avec pagination (24 films par page).
+- **Recherche / Tri / Filtres** : recherche par titre, filtre par genre et tri par popularité, note, date de sortie ou titre (ordre croissant ou décroissant).
+- **Vue détail** : une page pour chaque film avec l'affiche, l'image de fond, la note, les genres, la langue originale, le classement et le résumé.
+- **Fonctionnalité interactive** : les favoris, avec un bouton ♥ sur chaque carte et sur la page du film pour ajouter ou retirer un film, un message de confirmation et une page « Mes favoris ». Un bouton permet aussi de passer du mode clair au mode sombre.
+- **Film au hasard** : un bouton qui ouvre la page d'un film choisi au hasard.
+- **Top des films** : top 10 / 50 / 100 des films les mieux notés.
+- **Page 404** : une page s'affiche si l'adresse n'existe pas.
+- **Persistance locale** : les favoris sont enregistrés dans le localStorage et restent après un rechargement de la page.
 
 ### Aperçu visuel
-_(Capture d’écran de l’application)_  
-`![Screenshot de l’application](img/screenshot.png)`
+**Page d'accueil (mode sombre)**
+![Page d'accueil en mode sombre](img/accueil.png)
+
+**Page d'accueil (mode clair)**
+![Page d'accueil en mode clair](img/accueil-clair.png)
+
+**Page d'un film**
+![Page du film Spider-Man: Brand New Day](img/film.png)
+
+**Mes favoris**
+![Page des favoris](img/favoris.png)
 
 ---
 
@@ -27,12 +39,16 @@ _(Capture d’écran de l’application)_
 - [Vue 3 Docs](https://vuejs.org/guide/introduction.html)
 - [Vuetify Docs](https://vuetifyjs.com/en/components/all/)
 - [Pinia Docs](https://pinia.vuejs.org/)
-- [Public APIs List](https://github.com/public-apis/public-apis)
-- Autres ressources...
+- [Vue Router Docs](https://router.vuejs.org/)
+- [Axios Docs](https://axios-http.com/fr/docs/intro)
+- [DEV {JS} – Bases de Vue.js](https://devjs.ch/vue/bases.html) : ref, computed, watch, onMounted, v-model
+- [DEV {JS} – Composants](https://devjs.ch/vue/composants.html) : props, emits, slots
+- [DEV {JS} – Exercice Pokédex Vuetify](https://devjs.ch/exercices/pokedex-vuetify/) : base pour le store, Axios, la recherche et les favoris
+- [API TMDB de l'école (DIVTEC)](https://apis.divtec.me/api/tmdb-api/docs) : documentation de l'API (Swagger)
 
 #### Progression
-- Semaine 1 : ...
-- Semaine 2 : ...
+- Semaine 1 : Confirmation de l'API et creation des premiers idees pour le site
+- Semaine 2 : completer les idees
 - Semaine 3 : ...
 - Semaine 4 : ...
 - ...
