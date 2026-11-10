@@ -47,11 +47,12 @@
 - [API TMDB de l'école (DIVTEC)](https://apis.divtec.me/api/tmdb-api/docs) : documentation de l'API (Swagger)
 
 #### Progression
-- Semaine 1 : Confirmation de l'API et creation des premiers idees pour le site
-- Semaine 2 : completer les idees
-- Semaine 3 : ...
-- Semaine 4 : ...
-- ...
+- **Semaine 1 (22.09)** : création du projet. Après la validation de l'API, j'ai défini les pages du site et préparé la maquette principale avec draw.io
+- **Semaine 2 (12.10 – 18.10)** : page d'accueil avec les films de l'API, Top 10 / 50 / 100, pagination du catalogue et page de détail d'un film (image de fond, langue, classement, étoiles).
+- **Semaine 3 (19.10 – 25.10)** : mise en place du store Pinia et d'Axios avec un fichier `.env`, code repris pour n'utiliser que ce qui a été vu en cours, bouton « film au hasard » et mise en ligne sur Vercel.
+- **Semaine 4 (26.10 – 01.11)** : remplacement de la plupart du CSS par des composants Vuetify (barre latérale, Top 10, cartes, grille), ajout du logo, du nom « Cinéclap », d'un footer avec un slot et d'une page 404.
+- **Semaine 5 (02.11 – 08.11)** : après les retours de l'enseignant, recherche par titre, filtre par genre et tri sur l'accueil ; favoris avec le localStorage et page « Mes favoris » ; mode clair / sombre ; configuration de Vercel ; nettoyage du code.
+- **Semaine 6 (09.11 – 10.11)** : rédaction du README, captures d'écran et préparation de la défense orale.
 
 ---
 
