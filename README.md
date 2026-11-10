@@ -184,14 +184,15 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ### Utilisation détaillée
 **Domaines d'aide :**
-- Aide au code général : 42.5%
-- Génération de snippets Vue/Vuetify : 42.5%
-- Aide à la structuration du projet : 5%
-- Debugging : 10%
+- Aide au code général : 75%
+- Génération de snippets Vue/Vuetify : 80%
+- Aide à la structuration du projet : 50%
+- Debugging : 50%
 - Recherche d’idées : 0%
 
 **Compréhension et adaptation**
 - **Expliquer ce que fait le code généré** : 
+  - Le code a plutôt été écrit par l'IA;
   - le store Pinia charge les films une seule fois (toutes les pages en parallèle avec `Promise.all`) et les partage entre les pages ;
   - la recherche utilise des `computed` chaînés (genre → titre → tri) sans modifier les données du store ;
   - les favoris sont des ids enregistrés dans le localStorage (`JSON.stringify` / `JSON.parse`) ;
@@ -200,14 +201,26 @@ Outils utilisés : draw.io pour la maquette du site.
   - j'ai demandé de n'utiliser que ce qui a été vu en cours
   - j'ai refusé certaines propositions : une autre API pour les acteurs (je voulais rester sur l'API de l'école) et une vérification des dates de sortie
   - j'ai changé la mise en page selon les retours de l'enseignant et supprimé les boutons inutiles
-  - j'ai verifier chaque bout de code et refuser les codes qu'on n'a pas vus.
-  - j'ai écrit moi-même quelque partie du code et ajouté le fichier `vercel.json`.
+  - j'ai verifier les bout de code et refuser les codes qu'on n'a pas vus.
+  - j'ai écrit moi-même quelques parties du code et ajouté le fichier `vercel.json`.
+    **Ce que l'IA a fait / ce que j'ai fait**
 
+| Partie | IA                                                   | Moi                                                                                                                             |
+|---|------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `stores/movieStore.js` (films, genres, favoris) | Code écrit par l'IA                                  | Choix des fonctionnalités, tests                                                                                                |
+| `pages/index.vue` (carrousel, recherche, tri, pagination) | Code écrit par l'IA                                  | Mise en page selon les retours de l'enseignant, écran de chargement (`v-skeleton-loader`), pagination sur mobile (`useDisplay`) |
+| `pages/movies/[id].vue`, `favoris.vue`, page 404 | Code écrit par l'IA(`pages/movies/[id].vue`) | Choix des informations à afficher, code des pages `favoris.vue`, page 404                                                       |
+| Composants (`MovieCard`, `TopMovies`, `AppSidebar`, `AppFooter`) | Code écrit par l'IA                                  | Début du bouton « film au hasard », suppression des boutons inutiles                                                            |
+| Passage du CSS à Vuetify | Proposé et écrit par l'IA                            | Validation de chaque étape                                                                                                      |
+| `vercel.json`, nettoyage des fichiers | –                                                    | Fait par moi                                                                                                                    |
+| Maquette (draw.io), idée du site | –                                                    | Fait par moi                                                                                                                    |
+| Logo | Généré par Gemini                                    | Idée et choix du logo                                                                                                           |
+| README | Traduction en Français                               | Rédaction, corrections et captures d'écran                                                                                      |
 
 ### Parties codées manuellement
 - Composants principaux : 20% personnel
 - Store & persistance : 15% personnel
-- Routing & navigation : X% personnel
+- Routing & navigation : 20% personnel
 - Tests & validation : 90% personnel
 ### Apprentissage personnel
 - **Ce que j'ai appris grâce à l'IA** :
@@ -222,10 +235,15 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ## 6. 🎯 Bilan personnel
 
-### Ce que j’ai appris
-- Compétences techniques acquises
-- Découvertes surprenantes
-- Concepts difficiles maîtrisés
+### Ce que j'ai appris
+- **Compétences techniques acquises** : créer une application Vue 3 avec des composants et des props, gérer les données avec un store Pinia, appeler une API avec Axios et un fichier `.env`, utiliser Vue Router (routes dynamiques, page 404), construire l'interface avec Vuetify et mettre le site en ligne sur Vercel.
+- **Découvertes surprenantes** :
+    - Vuetify permet de faire presque toute la mise en page sans CSS : le CSS de la page film est passé de 211 à 41 lignes.
+    - Le localStorage permet de garder des données sans base de données.
+- **Concepts difficiles maîtrisés** :
+    - la différence entre `computed` et `watch` ;
+    - `@click.stop.prevent` dans une carte cliquable ;
+    - le modulo (`%`) pour faire tourner le carrousel en boucle.
 
 ### Difficultés rencontrées
 - Problèmes techniques et solutions trouvées
