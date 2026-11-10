@@ -236,6 +236,7 @@
 
   // Store de l'interface (la loupe de la barre latérale demande le champ de recherche)
   const appStore = useAppStore()
+  const { rechercheDemandee } = storeToRefs(appStore)
 
   const { xs } = useDisplay() // Taille de l'écran : xs = téléphone (moins de 600 px)
 
@@ -363,7 +364,7 @@
    * Donne le focus au champ de recherche si la loupe de la barre latérale l'a demandé
    */
   function focusRecherche () {
-    if (appStore.rechercheDemandee) {
+    if (rechercheDemandee.value) {
       champRecherche.value.focus()
       appStore.terminerRecherche()
     }
@@ -372,7 +373,7 @@
   // Loupe cliquée depuis une autre page (l'accueil vient de s'afficher)
   onMounted(focusRecherche)
   // Loupe cliquée alors qu'on est déjà sur l'accueil
-  watch(() => appStore.rechercheDemandee, focusRecherche)
+  watch(rechercheDemandee, focusRecherche)
 
   // ----- Catalogue et pagination -----
 
