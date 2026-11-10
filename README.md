@@ -90,12 +90,12 @@
 - Variables d’environnement : copier `.env.example` → `.env` et compléter les clés nécessaires  
 
 ### Méthodologie
-- Découpage en composants réutilisables
-- Props & Emits clairs
-- Store global avec Pinia
-- Commits réguliers et explicites
-- Tests manuels (UI, persistance, erreurs API)
-- ...
+- **Découpage en composants réutilisables** : `MovieCard` est utilisé sur l'accueil et sur la page des favoris ; `TopMovies`, `AppSidebar` et `AppFooter` sont des composants séparés.
+- **Props & slots** : les données passent du parent à l'enfant avec des props (`MovieCard` reçoit le film avec `defineProps`) ; le footer utilise un slot.
+- **Store global avec Pinia** : les films, les genres et les favoris sont chargés une seule fois dans le store et partagés entre toutes les pages. Un deuxième store (`app`) gère l'interface.
+- **Commits réguliers et explicites**, en français.
+- **Tests manuels** dans le navigateur après chaque changement : affichage, recherche, favoris après un rechargement, erreurs de l'API, mobile.
+- **Code basé sur le cours** : j'ai utilisé seulement ce qui a été vu en cours (devjs.ch) et j'ai suivi l'exercice Pokédex Vuetify pour le store, la recherche et les favoris.
 
 ### Choix techniques
 - API sélectionnée :  
