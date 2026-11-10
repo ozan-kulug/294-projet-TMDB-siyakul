@@ -255,19 +255,40 @@ Outils utilisés : draw.io pour la maquette du site.
 - **Aide reçue et sources** : retours de l'enseignant pendant les points de suivi, cours devjs.ch (Bases de Vue.js, exercice Pokédex Vuetify), documentation Vue / Vuetify / Pinia et IA (voir partie 5).
 
 ### Réussites et fiertés
-- Aspects du projet dont je suis fier
-- Progrès constatés depuis le début
-- Envies de développement futur
+- **Aspects du projet dont je suis fier** :
+    - le design du site : le carrousel en haut de l'accueil et la page du film avec son image de fond ;
+    - le bouton « film au hasard », qui répond à l'objectif du site : aider ceux qui n'arrivent pas à choisir.
+- **Progrès constatés depuis le début** :
+    - au début, je ne savais pas comment organiser une application Vue ; maintenant je comprends le rôle du store, des pages, des composants et du routeur ;
+    - au début, j'écrivais beaucoup de CSS ; maintenant j'utilise les composants Vuetify.
+- **Envies de développement futur** :
+    - permettre aux utilisateurs du site de noter les films et afficher la moyenne de leurs notes ;
+    - si possible, relier Cinéclap à une API plus grande, avec plus de films.
+
 
 ### Améliorations possibles
-- Ce que j’ajouterais avec plus de temps
-- Fonctionnalités bonus envisagées
-- Compétences à approfondir
+- **Ce que j'ajouterais avec plus de temps** :
+    - un design plus adapté aux écrans de téléphone ;
+    - afficher les genres sur les cartes des films ;
+    - refaire le logo pour qu'il change quand on passe la souris dessus.
+- **Fonctionnalités bonus envisagées** :
+    - un filtre par note (ex. seulement les films notés 7 ou plus) ;
+    - un filtre par langue originale.
+- **Compétences à approfondir** :
+    - rendre `index.vue` plus simple en le découpant en plusieurs composants ;
+    - écrire tout le code dans une seule langue.
 
 ---
 
 ## 7. 📚 Références & Sources
-- Documentation de l’API : [Nom de l’API](https://...)
-- Tutos clés utilisés : ...
-- Usage de l’IA : voir section ci-dessus
-- Autres ressources utiles : ...
+- **Documentation de l'API** : [API TMDB de l'école (DIVTEC)](https://apis.divtec.me/api/tmdb-api/docs) – données issues de [The Movie Database (TMDB)](https://www.themoviedb.org/), usage pédagogique
+- **Tutos clés utilisés** :
+    - [DEV {JS} – Bases de Vue.js](https://devjs.ch/vue/bases.html)
+    - [DEV {JS} – Exercice Pokédex Vuetify](https://devjs.ch/exercices/pokedex-vuetify/)
+    - [Documentation Vuetify – composants](https://vuetifyjs.com/en/components/all/)
+- **Usage de l'IA** : voir la partie 5
+- **Autres ressources utiles** :
+    - [Material Design Icons](https://pictogrammers.com/library/mdi/) : icônes du site (`mdi-heart`, `mdi-magnify`…)
+    - [MDN – localStorage](https://developer.mozilla.org/fr/docs/Web/API/Window/localStorage) : sauvegarde des favoris
+    - [Vercel – Rewrites](https://vercel.com/docs/project-configuration#rewrites) : configuration de `vercel.json`
+    - [draw.io](https://www.drawio.com/) : maquette du site
