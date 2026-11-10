@@ -3,16 +3,8 @@
     <!-- Titre de la page : invisible à l'écran, mais lu par les lecteurs d'écran -->
     <h1 class="d-sr-only">Cinéclap</h1>
 
-    <!-- En-tête -->
-    <div class="d-flex justify-end align-center ga-2 mb-4">
-      <v-img
-        alt="Logo"
-        class="flex-grow-0"
-        height="48"
-        :src="logo"
-        width="48"
-      />
-      <!-- Lien vers les favoris, avec le nombre de favoris -->
+    <!-- En-tête : lien vers les favoris, avec le nombre de favoris -->
+    <div class="d-flex justify-end mb-4">
       <v-btn
         icon
         size="large"
@@ -217,7 +209,6 @@
   import { storeToRefs } from 'pinia'
   import { computed, onMounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
-  import logo from '@/assets/logo.webp'
   import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
 
