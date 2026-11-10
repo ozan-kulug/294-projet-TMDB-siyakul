@@ -1,6 +1,6 @@
 <template>
   <!-- Carte d'un film : affiche, titre, année et note. Un clic ouvre la page du film -->
-  <v-card class="movie-card" hover rounded="lg" :to="`/movies/${movie.id}`">
+  <v-card hover rounded="lg" :to="`/movies/${movie.id}`">
     <v-img
       :alt="movie.title"
       :aspect-ratio="2 / 3"
