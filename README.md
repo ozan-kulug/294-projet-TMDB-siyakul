@@ -4,8 +4,8 @@
 
 ### Concept
 - **API choisie** : API TMDB (The Movie Database) : Je suis un grand fan de cinéma, je regarde un film presque chaque jour. Le sujet m'a donc tout de suite parlé.
-- **Public cible** : Mon public cible, ce sont les personnes qui, comme moi, aiment regarder des films mais qui ont du mal à se décider.
-- **Objectifs** : Le but de l’application est de découvrir les films récents, de comparer les notes et de pouvoir choisir un film au hasard, sans le stress du choix.
+- **Public cible** : Mon public cible, ce sont les personnes qui, comme moi, aiment regarder des films mais qui ont du mal à se décider.  
+- **Objectifs** : Le but de l’application est de découvrir les films récents, de comparer les notes et de pouvoir choisir un film au hasard, sans le stress du choix.  
 
 ### Fonctionnalités principales
 - **Liste des films** : un carrousel avec les 5 films les plus populaires et un catalogue de 198 films avec pagination (24 films par page).
@@ -87,7 +87,7 @@
   npm run dev
   ```
   Le site s'ouvre sur http://localhost:3000
-- Variables d’environnement : copier `.env.example` → `.env` et compléter les clés nécessaires
+- Variables d’environnement : copier `.env.example` → `.env` et compléter les clés nécessaires  
 
 ### Méthodologie
 - **Découpage en composants réutilisables** : `MovieCard` est utilisé sur l'accueil et sur la page des favoris ; `TopMovies`, `AppSidebar` et `AppFooter` sont des composants séparés.
@@ -103,11 +103,11 @@
 - **Endpoints utilisés** :
     - `GET /movies?limit=100&page=N` : liste des films (toutes les pages sont chargées au démarrage)
     - `GET /genres?limit=100` : liste des genres
-    - Images : `https://apis.divtec.me` + `posterPath` / `backdropPath`
+    - Images : `https://apis.divtec.me` + `posterPath` / `backdropPath`  
 - **Limites / quotas connus** :
-    - seulement 198 films et 19 genres ;
-    - à partir du film n°105, il n'y a plus d'affiche : l'image de fond est utilisée à la place ;
-    - pas d'informations sur les acteurs ;
+  - seulement 198 films et 19 genres ;
+  - à partir du film n°105, il n'y a plus d'affiche : l'image de fond est utilisée à la place ;
+  - pas d'informations sur les acteurs ;
 
 ### Architecture (Descriptif + schéma simple + data-flow)
 - `App.vue` : composant racine, lance le chargement des données (`movieStore.init()`) au démarrage.
@@ -140,39 +140,37 @@ flowchart LR
 - Recherche : l'utilisateur tape dans le champ (`v-model`) → les `computed` filtrent par genre, par titre puis trient → le catalogue se met à jour. Les données du store ne sont jamais modifiées.
 - Favoris : clic sur ♥ dans `MovieCard` → `movieStore.toggleFavorite()` → le state change et est enregistré dans le localStorage → le cœur, le badge et la page des favoris se mettent à jour automatiquement.
 
-Outils utilisés : draw.io pour la maquette du site.
+Outils utilisés : draw.io pour la maquette du site. 
 
 ---
 
 ## 4. 🧪 Tests et validation
 
 ### Tests techniques
-- ✅ Appels API fonctionnels : 198 films et 19 genres chargés
-- ✅ Persistance vérifiée après refresh (localStorage)
-- ✅ Navigation entre les vues OK
-- ✅ Recherche, filtre et tri fonctionnels
-- ✅ Page 404 et « Film introuvable » pour une adresse inconnue
-- ✅ Rechargement d'une page sur Vercel sans erreur 404 (`vercel.json`)
+- ✅ Appels API fonctionnels  
+- ✅ Persistance vérifiée après refresh (localStorage)  
+- ✅ Navigation entre les vues OK  
+- ...
 
-### Tests d'UX
-- ✅ Navigation intuitive : barre latérale toujours visible, logo pour revenir à l'accueil, bouton retour sur la page d'un film
-- ✅ Recherche / filtre / tri faciles à comprendre : résultats mis à jour pendant la frappe et nombre de films affiché
-- ✅ Feedback utilisateur : chargement, message d'erreur si l'API ne répond pas, « Aucun film trouvé » si la recherche est vide
-- ✅ Confirmation des actions : message « Ajouté aux favoris » / « Retiré des favoris »
-- ✅ Responsive : sur mobile, le carrousel n'affiche qu'un film et le catalogue passe sur 2 colonnes
+### Tests d’UX
+- Navigation intuitive  
+- Recherche/filtre/tri faciles à comprendre  
+- Feedback utilisateur (loading, erreurs, vide)  
+- ...
 
-### Tests d'accessibilité
-- ✅ Contraste couleurs (Vuetify par défaut, en mode clair et en mode sombre)
-- ✅ Labels et placeholders corrects : champs avec un label, boutons-icônes avec un titre, images avec un texte alternatif (`alt`)
-- ✅ Navigation clavier possible : tous les boutons, liens et champs sont accessibles avec la touche Tab
-- ✅ Focus visible : l'élément sélectionné au clavier est mis en évidence
-- ✅ Titre `<h1>` sur chaque page (sur l'accueil il est caché à l'écran mais lu par les lecteurs d'écran)
--
-### Tests d'erreurs & fallback
-- ✅ API down → message d'erreur (`v-alert`) au lieu d'une page vide. Pas de mock : il n'est pas obligatoire pour l'année 26-27.
-- ✅ Liste vide → message clair affiché (ex. « Vous n'avez pas encore de favoris »)
-- ✅ Recherche sans résultat → affichage « Aucun film trouvé »
-- ✅ Film inexistant (`/movies/99999`) → message « Film introuvable »
+### Tests d’accessibilité
+- Contraste couleurs (Vuetify par défaut)  
+- Labels et placeholders corrects  
+- Navigation clavier possible  
+- Focus visible  
+- ...
+
+### Tests d’erreurs & fallback
+- API down → **mock fallback** affiché (fichier local ou données simulées)  
+- Liste vide → message clair affiché  
+- Recherche sans résultat → affichage “Aucun élément trouvé”  
+- ...
+
 ---
 
 ## 5. 🤖 Usage d’intelligence artificielle
@@ -180,61 +178,60 @@ Outils utilisés : draw.io pour la maquette du site.
 **⚠️ TRANSPARENCE OBLIGATOIRE** : Si vous utilisez une IA, vous DEVEZ :
 
 ### IA utilisée
-- **Nom** : ChatGPT / Claude / Gemini / Antigravity
-- **Version** : _Opus 5.5_, _Gemini Argon 4/Pro_, _GPT 6 Luna_
-- **Contexte** : Aide ponctuelle / Génération de code / Debugging / Feedbacks
+- **Nom** : ChatGPT / Claude / GitHub Copilot / Autre  
+- **Version** : _(ex. GPT-4)_  
+- **Contexte** : Aide ponctuelle / Génération de code / Debugging  
 
 ### Utilisation détaillée
 **Domaines d'aide :**
 - Aide au code général : X%
-- Génération de snippets Vue/Vuetify : X%
+- Génération de snippets Vue/Vuetify : X%  
 - Aide à la structuration du projet : X%
-- Debugging : X%
-- Recherche d’idées : X%
+- Debugging : X%  
+- Recherche d’idées : X%  
 
 **Compréhension et adaptation**
-- Expliquer ce que fait le code généré
-- Dire comment il a été adapté au projet
--
+- Expliquer ce que fait le code généré  
+- Dire comment il a été adapté au projet  
 
 ### Parties codées manuellement
-- Composants principaux : X% personnel
-- Store & persistance : X% personnel
-- Routing & navigation : X% personnel
-- Tests & validation : 100% personnel
+- Composants principaux : X% personnel  
+- Store & persistance : X% personnel  
+- Routing & navigation : X% personnel  
+- Tests & validation : 100% personnel  
 
 ### Apprentissage personnel
-- Ce que j’ai appris grâce à l’IA
-- Comment elle m’a aidé à progresser
+- Ce que j’ai appris grâce à l’IA  
+- Comment elle m’a aidé à progresser  
 
 ---
 
 ## 6. 🎯 Bilan personnel
 
 ### Ce que j’ai appris
-- Compétences techniques acquises
-- Découvertes surprenantes
-- Concepts difficiles maîtrisés
+- Compétences techniques acquises  
+- Découvertes surprenantes  
+- Concepts difficiles maîtrisés  
 
 ### Difficultés rencontrées
-- Problèmes techniques et solutions trouvées
-- Moments de blocage et dépassement
-- Aide reçue et sources
+- Problèmes techniques et solutions trouvées  
+- Moments de blocage et dépassement  
+- Aide reçue et sources  
 
 ### Réussites et fiertés
-- Aspects du projet dont je suis fier
-- Progrès constatés depuis le début
-- Envies de développement futur
+- Aspects du projet dont je suis fier  
+- Progrès constatés depuis le début  
+- Envies de développement futur  
 
 ### Améliorations possibles
-- Ce que j’ajouterais avec plus de temps
-- Fonctionnalités bonus envisagées
-- Compétences à approfondir
+- Ce que j’ajouterais avec plus de temps  
+- Fonctionnalités bonus envisagées  
+- Compétences à approfondir  
 
 ---
 
 ## 7. 📚 Références & Sources
-- Documentation de l’API : [Nom de l’API](https://...)
-- Tutos clés utilisés : ...
-- Usage de l’IA : voir section ci-dessus
+- Documentation de l’API : [Nom de l’API](https://...)  
+- Tutos clés utilisés : ...  
+- Usage de l’IA : voir section ci-dessus  
 - Autres ressources utiles : ...
