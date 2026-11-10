@@ -200,7 +200,7 @@
           density="comfortable"
           :length="nombrePages"
           rounded="circle"
-          :total-visible="5"
+          :total-visible="xs ? 3 : 5"
         />
       </v-col>
 
@@ -215,6 +215,7 @@
   import { storeToRefs } from 'pinia'
   import { computed, onMounted, ref, watch } from 'vue'
   import { useRouter } from 'vue-router'
+  import { useDisplay } from 'vuetify'
   import { useAppStore } from '@/stores/app'
   import { useMovieStore } from '@/stores/movieStore'
 
@@ -235,6 +236,8 @@
 
   // Store de l'interface (la loupe de la barre latérale demande le champ de recherche)
   const appStore = useAppStore()
+
+  const { xs } = useDisplay() // Taille de l'écran : xs = téléphone (moins de 600 px)
 
   const router = useRouter()
 
