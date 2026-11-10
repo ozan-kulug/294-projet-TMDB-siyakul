@@ -19,10 +19,10 @@
 
 ### Aperçu visuel
 **Page d'accueil (mode sombre)**
-![Page d'accueil en mode sombre](img/accueil.png)
+![Page d'accueil en mode sombre](img/accueil.webp)
 
 **Page d'accueil (mode clair)**
-![Page d'accueil en mode clair](img/accueil-clair.png)
+![Page d'accueil en mode clair](img/accueil-clair.webp)
 
 **Page d'un film**
 ![Page du film Spider-Man: Brand New Day](img/film.png)
@@ -66,9 +66,27 @@
 - **Gestion API Keys** : l'API de l'école ne demande pas de clé. Le fichier `.env` contient seulement les adresses de l'API et des images (`VITE_API_URL`, `VITE_IMAGES_URL`). Le fichier `.env.example` sert de modèle et le `.env` n'est pas envoyé sur GitHub (`.gitignore`).
 
 ### Installation & Run
-- Cloner le repo :...
-- Installer :... 
-- Lancer :...
+- **Prérequis** : Node.js (version 18 ou plus) et npm
+-  **Cloner le repo** :
+  ```bash
+  git clone https://github.com/ozan-kulug/294-projet-TMDB-siyakul.git
+  cd 294-projet-TMDB-siyakul
+  ```
+-  **Installer** :
+  ```bash
+  npm install
+  ```
+- **Variables d'environnement** : copier `.env.example` → `.env`. Aucune clé n'est nécessaire, les adresses de l'API sont déjà remplies.
+  ```bash
+  cp .env.example .env
+  ```
+(sous Windows : `copy .env.example .env`)
+
+- **Lancer** :
+  ```bash
+  npm run dev
+  ```
+  Le site s'ouvre sur http://localhost:3000
 - Variables d’environnement : copier `.env.example` → `.env` et compléter les clés nécessaires  
 
 ### Méthodologie
