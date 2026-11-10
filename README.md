@@ -177,8 +177,6 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ## 5. 🤖 Usage d’intelligence artificielle
 
-**⚠️ TRANSPARENCE OBLIGATOIRE** : Si vous utilisez une IA, vous DEVEZ :
-
 ### IA utilisée
 - **Nom** : ChatGPT / Claude / Gemini / Antigravity
 - **Version** : _Opus 5.5_, _Gemini Argon 4/Pro_, _GPT 6 Luna_
@@ -186,27 +184,40 @@ Outils utilisés : draw.io pour la maquette du site.
 
 ### Utilisation détaillée
 **Domaines d'aide :**
-- Aide au code général : X%
-- Génération de snippets Vue/Vuetify : X%
-- Aide à la structuration du projet : X%
-- Debugging : X%
-- Recherche d’idées : X%
+- Aide au code général : 42.5%
+- Génération de snippets Vue/Vuetify : 42.5%
+- Aide à la structuration du projet : 5%
+- Debugging : 10%
+- Recherche d’idées : 0%
 
 **Compréhension et adaptation**
-- Expliquer ce que fait le code généré
-- Dire comment il a été adapté au projet
--
+- **Expliquer ce que fait le code généré** : 
+  - le store Pinia charge les films une seule fois (toutes les pages en parallèle avec `Promise.all`) et les partage entre les pages ;
+  - la recherche utilise des `computed` chaînés (genre → titre → tri) sans modifier les données du store ;
+  - les favoris sont des ids enregistrés dans le localStorage (`JSON.stringify` / `JSON.parse`) ;
+  - `@click.stop.prevent` empêche d'ouvrir la page du film quand on clique sur le cœur.
+- **Dire comment il a été adapté au projet**
+  - j'ai demandé de n'utiliser que ce qui a été vu en cours
+  - j'ai refusé certaines propositions : une autre API pour les acteurs (je voulais rester sur l'API de l'école) et une vérification des dates de sortie
+  - j'ai changé la mise en page selon les retours de l'enseignant et supprimé les boutons inutiles
+  - j'ai verifier chaque bout de code et refuser les codes qu'on n'a pas vus.
+  - j'ai écrit moi-même quelque partie du code et ajouté le fichier `vercel.json`.
+
 
 ### Parties codées manuellement
-- Composants principaux : X% personnel
-- Store & persistance : X% personnel
+- Composants principaux : 20% personnel
+- Store & persistance : 15% personnel
 - Routing & navigation : X% personnel
-- Tests & validation : 100% personnel
-
+- Tests & validation : 90% personnel
 ### Apprentissage personnel
-- Ce que j’ai appris grâce à l’IA
-- Comment elle m’a aidé à progresser
-
+- **Ce que j'ai appris grâce à l'IA** :
+    - comprendre mon propre code avec des explications sur mon projet : `ref` / `computed` / `watch`, le store Pinia avec `storeToRefs`, le modulo du carrousel, `@click.stop.prevent` ;
+    - savoir où et comment ajouter une fonctionnalité (par exemple un nouveau filtre dans la chaîne de `computed`) ;
+    - utiliser les composants Vuetify à la place du CSS.
+- **Comment elle m'a aidé à progresser** :
+    - j'ai pu poser des questions à chaque étape et avoir une réponse tout de suite ;
+    - j'ai appris à ne pas tout accepter : vérifier ce qu'elle propose, refuser ce qui ne correspond pas au projet ou au cours ;
+    - elle m'a fait gagner du temps sur le code, ce qui m'a permis de me concentrer sur les idées, le design et les tests.
 ---
 
 ## 6. 🎯 Bilan personnel
